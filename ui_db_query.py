@@ -13,7 +13,12 @@ import os
 
 openai.api_key = st.secrets['OPENAI_API_KEY']
 
-
+def remove_plural_suffix(text):
+    # Pattern to find words ending with (s) optionally followed by an underscore and more characters
+    pattern = r'\(s\)(?=_?\w*)'
+    # Replace found patterns with nothing, effectively removing them
+    result = re.sub(pattern, '', text)
+    return result
 
 def is_plot(result_json,question):
   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
@@ -167,7 +172,9 @@ def answer_question_on_csv(csv_file_name,question):
   except UnicodeDecodeError:
     df = pd.read_csv(csv_file_name,encoding='latin-1')
   for col in df.columns:
+    col = remove_plural_suffix(col)
     df = df.rename(columns={col:col.replace(" ","")})
+    
   push_df_in_db(df,"my_database.db","my_table")
   table_name = "my_table"
   # question = """which is the most common mode of payment?"""
