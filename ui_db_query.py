@@ -10,7 +10,7 @@ import streamlit as st
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-openai.api_key = st.secrets["openai_api_key"]
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 
 
