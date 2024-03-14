@@ -246,22 +246,24 @@ def main():
     uploaded_file = st.file_uploader("Choose a file", type=['csv'])
     if uploaded_file is not None:
         question = st.text_input("Enter your question:", "")
-        if question:
-            if st.button('Get Answer'):
+        if question and st.button('Get Answer'):
+            # Attempt to read the CSV file with the default encoding first
+            try:
+                df = pd.read_csv(uploaded_file)
+            except UnicodeDecodeError:
+                # If reading with default encoding fails, try 'latin-1'
+                uploaded_file.seek(0)  # Reset the file pointer before retrying
+                df = pd.read_csv(uploaded_file, encoding='latin-1')
                 
-                    # Convert the uploaded file to a dataframe
-              try:
-                      
-                  df = pd.read_csv(uploaded_file)
-              except UnicodeDecodeError:
-                  df = pd.read_csv(uploaded_file,encoding='latin-1')
-                    # Temporarily save the dataframe to a CSV to use in the existing function
-              temp_csv_name = "temp_uploaded_file.csv"
-              df.to_csv(temp_csv_name, index=False)
-                    # Call the existing function to get and display the answer
-              answer = answer_question_on_csv(temp_csv_name, question)
-              st.write(answer)
-                
+            # After successfully reading the file, proceed with your logic
+            # For example, temporarily save the DataFrame for processing
+            temp_csv_name = "temp_uploaded_file.csv"
+            df.to_csv(temp_csv_name, index=False)
+            
+            # Now, you can call your function that processes the data
+            answer = answer_question_on_csv(temp_csv_name, question)
+            st.write(answer)
 
 if __name__ == "__main__":
     main()
+
