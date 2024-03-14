@@ -172,8 +172,8 @@ def answer_question_on_csv(csv_file_name,question):
   except UnicodeDecodeError:
     df = pd.read_csv(csv_file_name,encoding='latin-1')
   for col in df.columns:
-    col = remove_plural_suffix(col)
-    df = df.rename(columns={col:col.replace(" ","")})
+    
+    df = df.rename(columns={col:remove_plural_suffix(col.replace(" ",""))})
     
   push_df_in_db(df,"my_database.db","my_table")
   table_name = "my_table"
