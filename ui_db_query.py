@@ -9,6 +9,7 @@ import ast
 import streamlit as st
 from datetime import datetime
 import matplotlib.pyplot as plt
+import os
 
 openai_api_key = os.environ.get('OPENAI_API_KEY')
 
