@@ -250,7 +250,11 @@ def main():
             if st.button('Get Answer'):
                 try:
                     # Convert the uploaded file to a dataframe
-                    df = pd.read_csv(uploaded_file)
+                    try:
+                      
+                        df = pd.read_csv(uploaded_file)
+                    except UnicodeDecodeError:
+                        df = pd.read_csv(uploaded_file,encoding='latin-1')
                     # Temporarily save the dataframe to a CSV to use in the existing function
                     temp_csv_name = "temp_uploaded_file.csv"
                     df.to_csv(temp_csv_name, index=False)
