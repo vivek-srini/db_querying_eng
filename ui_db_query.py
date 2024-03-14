@@ -162,7 +162,10 @@ def find_most_common_characters(word, word_list):
 #You have a csv. Write csv as a db first to perform queries
 
 def answer_question_on_csv(csv_file_name,question):
-  df = pd.read_csv(csv_file_name)
+  try:
+    df = pd.read_csv(csv_file_name)
+  except UnicodeDecodeError:
+    df = pd.read_csv(csv_file_name,encoding='latin-1')
   for col in df.columns:
     df = df.rename(columns={col:col.replace(" ","")})
   push_df_in_db(df,"my_database.db","my_table")
