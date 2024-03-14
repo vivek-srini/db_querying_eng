@@ -10,7 +10,9 @@ import streamlit as st
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-openai.api_key = "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"
+openai.api_key = st.secrets["openai_api_key"]
+
+
 
 def is_plot(result_json,question):
   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
