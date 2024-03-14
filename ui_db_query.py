@@ -248,21 +248,20 @@ def main():
         question = st.text_input("Enter your question:", "")
         if question:
             if st.button('Get Answer'):
-                try:
+                
                     # Convert the uploaded file to a dataframe
-                    try:
+              try:
                       
-                        df = pd.read_csv(uploaded_file)
-                    except UnicodeDecodeError:
-                        df = pd.read_csv(uploaded_file,encoding='latin-1')
+                  df = pd.read_csv(uploaded_file)
+              except UnicodeDecodeError:
+                  df = pd.read_csv(uploaded_file,encoding='latin-1')
                     # Temporarily save the dataframe to a CSV to use in the existing function
-                    temp_csv_name = "temp_uploaded_file.csv"
-                    df.to_csv(temp_csv_name, index=False)
+              temp_csv_name = "temp_uploaded_file.csv"
+              df.to_csv(temp_csv_name, index=False)
                     # Call the existing function to get and display the answer
-                    answer = answer_question_on_csv(temp_csv_name, question)
-                    st.write(answer)
-                except Exception as e:
-                    st.error(f"An error occurred: {e}")
+              answer = answer_question_on_csv(temp_csv_name, question)
+              st.write(answer)
+                
 
 if __name__ == "__main__":
     main()
