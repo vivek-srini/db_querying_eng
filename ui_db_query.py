@@ -122,18 +122,7 @@ def get_result_json(sql_query):
     df = pd.read_sql_query(query, conn)
     return df.to_dict()
 
-def get_chat_response(prompt,model):
-  openai = OpenAI(
-    api_key="F4wCmQnLM8pZVPC9bxgin2wmWNDQZEhn",
-    base_url="https://api.deepinfra.com/v1/openai",
-)
 
-  chat_completion = openai.chat.completions.create(
-    model=model,
-    messages=[{"role": "user", "content": f"{prompt}"}],
-)
-
-  return chat_completion.choices[0].message.content
 
 def get_pairings(stage2_response):
 
