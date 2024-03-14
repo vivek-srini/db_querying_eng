@@ -11,7 +11,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import os
 
-openai_api_key = st.secrets['OPENAI_API_KEY']
+openai.api_key = st.secrets['OPENAI_API_KEY']
 
 
 
