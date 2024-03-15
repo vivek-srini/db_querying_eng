@@ -466,21 +466,21 @@ def main():
                         
 
         elif functionality == 'Analyze Relationship':
-    if uploaded_file is not None:
+            if uploaded_file is not None:
         # Combine all possible columns for selection, ensuring at least one is numeric for the analysis
-        all_columns = df.columns
-        column1 = st.selectbox('Select First Column', all_columns, key='first_column_select')
-        column2 = st.selectbox('Select Second Column', all_columns, key='second_column_select', index=1 if len(all_columns) > 1 else 0)
+                all_columns = df.columns
+                column1 = st.selectbox('Select First Column', all_columns, key='first_column_select')
+                column2 = st.selectbox('Select Second Column', all_columns, key='second_column_select', index=1 if len(all_columns) > 1 else 0)
         
         # Check if at least one of the selected columns is numeric
-        col1_is_numeric = pd.api.types.is_numeric_dtype(df[column1])
-        col2_is_numeric = pd.api.types.is_numeric_dtype(df[column2])
+                col1_is_numeric = pd.api.types.is_numeric_dtype(df[column1])
+                col2_is_numeric = pd.api.types.is_numeric_dtype(df[column2])
 
-        if column1 and column2 and st.button('Analyze Columns', key='analyze_columns_button'):
-            if col1_is_numeric or col2_is_numeric:
-                analyze_relationship(df, column1, column2)
-            else:
-                st.error('At least one of the selected columns must be numeric.')
+                if column1 and column2 and st.button('Analyze Columns', key='analyze_columns_button'):
+                    if col1_is_numeric or col2_is_numeric:
+                        analyze_relationship(df, column1, column2)
+                    else:
+                        st.error('At least one of the selected columns must be numeric.')
 
 
 if __name__ == "__main__":
