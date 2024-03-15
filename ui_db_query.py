@@ -38,27 +38,40 @@ def preprocess_features(X):
     
     # Convert categorical variables to numeric using Label Encoding for simplicity
     # Consider One-Hot Encoding for non-ordinal categorical data
-    for col in X.select_dtypes(include=['object', 'category']).columns:
+    for col in X.select_dtypes(include=['object', 'category','bool']).columns:
         X[col] = LabelEncoder().fit_transform(X[col])
     
     return X
 
 def compute_feature_importance(df, target_column, features):
-    X = df[features]
-    y = df[target_column]
+    # Ensure the target column and features are in the DataFrame
+    if target_column not in df.columns or not all(feature in df.columns for feature in features):
+        raise ValueError("Target column or selected features are not in the DataFrame")
+
+    # Select only the relevant columns
+    df_relevant = df[[target_column] + features]
     
-    # Ensure preprocessing of features here if necessary
+    # Separate the target variable and the features
+    X = df_relevant.drop(columns=[target_column])
+    y = df_relevant[target_column]
     
-    # Split the data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Preprocess the features
+    X_processed = preprocess_features(X.copy())
     
-    # Choose model type based on target column's dtype
-    model = RandomForestRegressor(random_state=42) if pd.api.types.is_numeric_dtype(y) else RandomForestClassifier(random_state=42)
+    # Determine if the target is numeric or categorical for model selection
+    target_is_numeric = pd.api.types.is_numeric_dtype(df[target_column])
+    
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.2, random_state=42)
+    
+    # Initialize and fit the model
+    model = RandomForestRegressor(random_state=42) if target_is_numeric else RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
     
-    # Extract and return feature importances
+    # Compute feature importances
     importances = model.feature_importances_
-    feature_importances = pd.DataFrame({'Feature': features, 'Importance': importances}).sort_values(by='Importance', ascending=False).reset_index(drop=True)
+    feature_importances = pd.DataFrame({'Feature': X_processed.columns, 'Importance': importances}).sort_values(by='Importance', ascending=False)
+    
     return feature_importances
 
 def display_feature_importances(feature_importances):
