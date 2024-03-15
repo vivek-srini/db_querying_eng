@@ -23,9 +23,12 @@ def remove_plural_suffix(text):
     result = re.sub(pattern, '', text)
     return result
 
-def answer_with_haiku(prompt):
+def answer_with_haiku(prompt,sonnet=False):
+  model = "claude-3-haiku-20240307"
+  if sonnet==True:
+      model = "claude-3-sonnet-20240229"
   message = client.messages.create(
-    model="claude-3-haiku-20240307",
+    model=model,
     max_tokens=1024,
     messages=[
         {"role": "user", "content": prompt}
@@ -213,7 +216,7 @@ Query: select wkts from batting_table where name in ('tendulkar','sehwag')
 Answer: [('batting_table','wkts','tendulkar'),('batting_table','wkts','sehwag')]
 
 Note above that the value is the value equated. It could also be a non equation i.e., <>. Also remember that you only have to give the column name. For eg if there is something like strftime('...',date)='2022-01-03', the column name is just date
-Please do not extract any value unless there is '=' or '<>'. This is very important
+Please do not extract any value unless there is '=' or '<>'. This is very important.If there are no values, just give an empty list
 Query: {sql_query}
 Answer:
 
@@ -222,7 +225,7 @@ NOTE: THIS IS VERY IMPORTANT: YOUR ANSWER SHOULD CONTAIN ONLY THE LIST OF TUPLES
 
 
   #stage2_response = get_chat_response_closed(stage2_prompt,"gpt-3.5-turbo-0125")  
-  stage2_response = answer_with_haiku(stage2_prompt)
+  stage2_response = answer_with_haiku(stage2_prompt,sonnet=True)
   stage2_response = stage2_response.strip()
   pairings = get_pairings(stage2_response)
   pairings_new = []
