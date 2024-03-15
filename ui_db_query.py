@@ -48,7 +48,7 @@ def compute_feature_importance(df, target_column, features):
     y = df[target_column]
     
     # Ensure preprocessing of features here if necessary
-    
+    X = preprocess_features(X)
     # Split the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
