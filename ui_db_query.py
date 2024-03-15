@@ -368,8 +368,11 @@ Note: THIS IS VERY IMPORTANT. ONLY GIVE A SINGLE SQL QUERY AND NO OTHER INFORMAT
   #sql_query = answer_with_haiku(stage1_prompt)
   sql_query = get_chat_response_closed(stage1_prompt,"gpt-3.5-turbo-0125")
   sql_query = sql_query.strip("`")
-  sql_query = sql_query.strip()
   sql_query = sql_query.replace("\n"," ")
+  sql_query = sql_query.replace("sql","")
+  sql_query = sql_query.strip()
+  
+
   stage2_prompt =f"""Here is a SQL Query: {sql_query}. In this sql query, wherever, there is '=' or '<>', extract the value and the corresponding column name and table name and give the response as  [(table,column,value)] pairings. Note that the reponse should contain the pairings as a list of tuples -  one tuple for each pairing and nothing else.
 
 For Eg:
