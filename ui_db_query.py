@@ -50,23 +50,23 @@ def analyze_relationship(df, numeric_column, categorical_column):
     if numeric_column not in df.columns or categorical_column not in df.columns:
         st.error("Error: Column not found in DataFrame.")
         return
+    
+    # Descriptive Statistics display
+    st.write(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
+    descriptive_stats = df.groupby(categorical_column)[numeric_column].describe()
+    st.dataframe(descriptive_stats)  # Use st.dataframe to display the stats nicely
 
-    # Calculate the number of unique categories
+    # Calculate the number of unique categories for dynamic sizing
     num_categories = len(df[categorical_column].unique())
     
-    # Dynamic width: base width + incremental width for each category
-    plot_width = max(10, num_categories * 1.5)  # Adjust 1.5 as needed for category label spacing
-    
-    # Dynamic height based on the number of plots and potentially the number of categories
-    base_height_per_plot = 4  # Base height for each plot; adjust as needed
-    additional_height_per_category = 0.2  # Additional height per category; adjust as needed
-    total_height = (base_height_per_plot + num_categories * additional_height_per_category) * 3  # 3 plots in total
-    
-    # Ensure total height is within reasonable bounds
-    total_height = max(12, min(30, total_height))  # Adjust min and max bounds as needed
+    # Dynamic width based on number of categories
+    plot_width = max(10, num_categories * 1.5)  # Adjust multiplier as needed
+    # Dynamic height based on number of plots (considering 3 plots here)
+    plot_height_per_plot = 4  # Adjust base height per plot as needed
+    total_plot_height = plot_height_per_plot * 3 + (2 * num_categories)  # Adding extra space based on categories
 
     # Visualization setup for vertical arrangement
-    fig, axs = plt.subplots(3, 1, figsize=(plot_width, total_height))
+    fig, axs = plt.subplots(3, 1, figsize=(plot_width, total_plot_height))
     
     # Box Plot
     sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
