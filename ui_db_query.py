@@ -370,50 +370,43 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 def main():
     st.title('Database Querying Thing Demo')
 
-    # Initial buttons for choosing functionality
+    # Initialize session state variables if not already present
+    if 'ask_question' not in st.session_state:
+        st.session_state['ask_question'] = False
+    if 'analyze_relationship' not in st.session_state:
+        st.session_state['analyze_relationship'] = False
+
     col1, col2 = st.columns(2)
-    ask_question = col1.button('Ask a Question')
-    analyze_relationship_button = col2.button('Analyze Relationship')
 
-    # Placeholder for further actions
-    action_placeholder = st.empty()
+    # Define button actions
+    def on_ask_question():
+        st.session_state['ask_question'] = True
+        st.session_state['analyze_relationship'] = False
 
-    # Upload CSV functionality - placed in a container to show/hide based on selection
-    upload_container = st.container()
+    def on_analyze_relationship():
+        st.session_state['ask_question'] = False
+        st.session_state['analyze_relationship'] = True
 
-    if ask_question:
-        # Hide the initial buttons and show the question-asking interface
-        col1.empty()
-        col2.empty()
-        with action_placeholder:
-            with upload_container:
-                uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'])
-            if uploaded_file is not None:
-                df = pd.read_csv(uploaded_file)
-                question = st.text_input("Enter your question:", key="question")
-                if question:
-                    # Process the question here
-                    st.write("Processing question... (implement your logic here)")
-                    # Example: answer, result_json = answer_question_on_csv('temp_uploaded_file.csv', question)
+    # Display buttons
+    col1.button('Ask a Question', on_click=on_ask_question)
+    col2.button('Analyze Relationship', on_click=on_analyze_relationship)
 
-    elif analyze_relationship_button:
-        # Hide the initial buttons and show the relationship analysis interface
-        col1.empty()
-        col2.empty()
-        with action_placeholder:
-            with upload_container:
-                uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'])
-            if uploaded_file is not None:
-                df = pd.read_csv(uploaded_file)
-                # Allow column selection for analysis
-                numeric_columns = df.select_dtypes(include=['float64', 'int64', 'bool']).columns.tolist()
-                categorical_columns = df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
-                numeric_column = st.selectbox('Select Numeric Column', numeric_columns, key='numeric_column')
-                categorical_column = st.selectbox('Select Categorical Column', categorical_columns, key='categorical_column')
-                if st.button('Analyze'):
-                    # Perform the analysis here
-                    st.write("Analyzing relationship... (implement your logic here)")
-                    # Example: analyze_relationship(df, numeric_column, categorical_column)
+    # Check the state and act accordingly
+    if st.session_state['ask_question']:
+        uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'], key='file_uploader_q')
+        if uploaded_file is not None:
+            df = pd.read_csv(uploaded_file)
+            question = st.text_input("Enter your question:", key="question")
+            if question:
+                # Implement your logic to process the question here
+                st.write("Processing question...")  # Placeholder
+
+    elif st.session_state['analyze_relationship']:
+        uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'], key='file_uploader_r')
+        if uploaded_file is not None:
+            df = pd.read_csv(uploaded_file)
+            # Implement your logic for analyzing relationship here
+            st.write("Analyzing relationship...")  # Placeholder
           
 
 if __name__ == "__main__":
