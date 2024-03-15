@@ -541,7 +541,7 @@ def main():
                         st.error('At least one of the selected columns must be numeric.')
         elif functionality == 'Find Variable Drivers':
             target_column = st.selectbox('Select Target Column', df.columns, index=0)
-            features = st.multiselect('Select Candidate Driver Variables', df.columns.drop(target_column), default=df.columns.drop(target_column)[:5])
+            features = st.multiselect('Select Candidate Driver Variables', df.columns.drop(target_column))
             
             if st.button('Compute Feature Importances') and features:
                 feature_importances = compute_feature_importance(df, target_column, features)
