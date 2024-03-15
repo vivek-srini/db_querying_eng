@@ -59,7 +59,7 @@ def answer_with_haiku(prompt,sonnet=False):
 #   plot_response = get_chat_response_closed(plot_prompt,model="gpt-3.5-turbo-0125")  
 #   return plot_response
 
-def suggest_plot_type_and_data(result_json, question):
+def is_plot(result_json, question):
     from dateutil.parser import parse
     import json
 
