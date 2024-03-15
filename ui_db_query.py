@@ -232,6 +232,7 @@ Please use the json to answer the question. Please make your answer seem like yo
 Please understand that you are not chatting with me. Rather, you simply have to answer the question:{question}
 
 Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO YOU ARE SUPPOSED TO GIVE A VERBAL ANSWER TO THE USER AND NOT WRITE ANY CODE OR GIVE ANY OTHER INSTRUCTION. DIRECTLY ANSWER THE USER'S QUESTION"""
+  st.write("Stage 3 prompt:",stage3_prompt)
   stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
   
 
