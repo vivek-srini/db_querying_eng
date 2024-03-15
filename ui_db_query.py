@@ -40,34 +40,34 @@ def answer_with_haiku(prompt,sonnet=False):
 def analyze_relationship(df, numeric_column, categorical_column):
     # Check if the columns exist in the DataFrame
     if numeric_column not in df.columns or categorical_column not in df.columns:
-        print("Error: Column not found in DataFrame.")
+        st.error("Error: Column not found in DataFrame.")
         return
     
     # Descriptive Statistics
-    print(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
-    print(df.groupby(categorical_column)[numeric_column].describe(), '\n')
+    st.write(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
+    st.write(df.groupby(categorical_column)[numeric_column].describe(), '\n')
     
-    # Visualization
-    plt.figure(figsize=(16, 6))
+    # Visualization setup
+    fig, axs = plt.subplots(1, 3, figsize=(16, 6))
     
     # Box Plot
-    plt.subplot(1, 3, 1)
-    sns.boxplot(x=categorical_column, y=numeric_column, data=df)
-    plt.title('Box Plot')
+    sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
+    axs[0].set_title('Box Plot')
     
     # Bar Plot - Showing Mean Values
-    plt.subplot(1, 3, 2)
     mean_values = df.groupby(categorical_column)[numeric_column].mean().reset_index()
-    sns.barplot(x=categorical_column, y=numeric_column, data=mean_values)
-    plt.title('Bar Plot of Mean Values')
+    sns.barplot(x=categorical_column, y=numeric_column, data=mean_values, ax=axs[1])
+    axs[1].set_title('Bar Plot of Mean Values')
     
     # Violin Plot
-    plt.subplot(1, 3, 3)
-    sns.violinplot(x=categorical_column, y=numeric_column, data=df)
-    plt.title('Violin Plot')
+    sns.violinplot(x=categorical_column, y=numeric_column, data=df, ax=axs[2])
+    axs[2].set_title('Violin Plot')
     
+    # Adjust layout
     plt.tight_layout()
-    plt.show()
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
 
 # def is_plot(result_json,question):
 #   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
