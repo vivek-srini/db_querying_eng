@@ -18,6 +18,25 @@ client = anthropic.Anthropic(
     api_key=st.secrets['ANTHROPIC_KEY']
 )
 
+
+def calculate_text_area_height(answer, line_width=90, line_height=1.15):
+    """
+    Calculate the approximate height for the text area based on the answer length.
+
+    :param answer: The text of the answer.
+    :param line_width: Estimated average number of characters per line.
+    :param line_height: Height of each line in the text area (in em units).
+    :return: The calculated height (in em units) for the text area.
+    """
+    # Calculate the number of lines the answer will occupy
+    num_lines = len(answer) / line_width
+    # Calculate the height of the text area
+    height = num_lines * line_height
+    # Ensure a minimum height to maintain usability
+    min_height = 5  # Minimum height in em units
+    return max(height, min_height)
+
+
 def remove_plural_suffix(text):
     # Pattern to find words ending with (s) optionally followed by an underscore and more characters
     pattern = r'\(s\)(?=_?\w*)'
@@ -425,7 +444,8 @@ def main():
             question = st.text_input("Enter your question:")
             if question and st.button('Submit Question'):
                 answer, result_json = answer_question_on_csv(file_path, question)  # Now passing the file path
-                st.text_area("Answer", value=answer, height=300)
+                text_area_height = calculate_text_area_height(answer)
+                st.text_area("Answer", value=answer, height=int(text_area_height * 10))
                 # Additional logic to use result_json as needed
                 if result_json:
                     plot_json = is_plot(result_json,question)
