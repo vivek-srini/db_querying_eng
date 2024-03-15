@@ -104,7 +104,7 @@ def is_date(string):
 
 
 
-def get_chat_response_closed(prompt, model, temperature=0.7, max_tokens=150):
+def get_chat_response_closed(prompt, model, temperature=0.7, max_tokens=500):
     """
     Generate a chat response using OpenAI's chat model.
 
