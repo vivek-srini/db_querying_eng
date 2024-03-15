@@ -53,16 +53,22 @@ def analyze_relationship(df, numeric_column, categorical_column):
     
     # Box Plot
     sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
-    axs[0].set_title('Box Plot')
+    axs[0].set_title('Box Plot', fontsize=20)  # Set title font size
+    axs[0].tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
+    axs[0].tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
     
     # Bar Plot - Showing Mean Values
     mean_values = df.groupby(categorical_column)[numeric_column].mean().reset_index()
     sns.barplot(x=categorical_column, y=numeric_column, data=mean_values, ax=axs[1])
-    axs[1].set_title('Bar Plot of Mean Values')
+    axs[1].set_title('Bar Plot of Mean Values', fontsize=20)  # Set title font size
+    axs[1].tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
+    axs[1].tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
     
     # Violin Plot
     sns.violinplot(x=categorical_column, y=numeric_column, data=df, ax=axs[2])
-    axs[2].set_title('Violin Plot')
+    axs[2].set_title('Violin Plot', fontsize=20)  # Set title font size
+    axs[2].tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
+    axs[2].tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
     
     # Adjust layout
     plt.tight_layout()
