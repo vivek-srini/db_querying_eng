@@ -279,7 +279,9 @@ def main():
             
             # Now, you can call your function that processes the data
             answer = answer_question_on_csv(temp_csv_name, question)
-            st.text(answer)
+            st.text_area("Answer Display", value=answer, height=300, disabled=True)
+
+          
 
 if __name__ == "__main__":
     main()
