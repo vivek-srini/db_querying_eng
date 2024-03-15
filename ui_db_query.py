@@ -205,7 +205,8 @@ Table name: {table_name}\n"""
   stage1_prompt+=f"""\nBased on this information, please write a sqlite query for the following question:{question}
 Note: THIS IS VERY IMPORTANT. ONLY GIVE A SINGLE SQL QUERY AND NO OTHER INFORMATION IN YOUR ANSWER. THERE SHOULD NOT BE ANYTHING EXCEPT THE QUERY ITSELF.DONT EVEN MENTION THAT IT IS A SQL QUERY, JUST GIVE A SINGLE QUERY. THE OUTPUT WILL BE DIRECTLY EXECUTED ON A SQL SERVER. ALSO, YOU HAVE TO GIVE EXACTLY 1 SQL QUERY"""
   print(stage1_prompt)
-  sql_query = answer_with_haiku(stage1_prompt)
+  #sql_query = answer_with_haiku(stage1_prompt)
+  sql_query = get_chat_response_closed(stage1_prompt,"gpt-3.5-turbo-0125")
   sql_query = sql_query.strip("`")
   sql_query = sql_query.strip()
   sql_query = sql_query.replace("\n"," ")
@@ -224,8 +225,8 @@ Answer:
 NOTE: THIS IS VERY IMPORTANT: YOUR ANSWER SHOULD CONTAIN ONLY THE LIST OF TUPLES ITSELF AND NOTHING ELSE. ALL THERE SHOULD BE IN YOUR RESPONSE IS A SINGLE LIST. IF THERE ARE NO VALUES, DONT GIVE AN EMPTY STRING - INSTEAD DONT GIVE THE PAIRING AT ALL. ALSO THE VALUES IN THE PAIRINGS SHOULD ALWAYS BE IN QUOTES"""
 
 
-  #stage2_response = get_chat_response_closed(stage2_prompt,"gpt-4")  
-  stage2_response = answer_with_haiku(stage2_prompt)
+  stage2_response = get_chat_response_closed(stage2_prompt,"gpt-3.5-turbo-0125")  
+  #stage2_response = answer_with_haiku(stage2_prompt)
   st.write(stage2_response)
   stage2_response = stage2_response.strip()
   pairings = get_pairings(stage2_response)
@@ -255,8 +256,8 @@ Please use the json to answer the question. Please make your answer seem like yo
 Please understand that you are not chatting with me. Rather, you simply have to answer the question:{question}
 
 Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO YOU ARE SUPPOSED TO GIVE A VERBAL ANSWER TO THE USER AND NOT WRITE ANY CODE OR GIVE ANY OTHER INSTRUCTION. DIRECTLY ANSWER THE USER'S QUESTION"""
-  #stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
-  stage3_response = answer_with_haiku(stage3_prompt)
+  stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
+  #stage3_response = answer_with_haiku(stage3_prompt)
   total_cost = (client.count_tokens(stage2_prompt)*0.25 + client.count_tokens(stage1_prompt+stage3_prompt)*0.25+client.count_tokens(stage2_response)*1.25+client.count_tokens(sql_query+stage3_response)*1.25)/1000000
    
   st.write("Total Cost:",f"{total_cost}$")
