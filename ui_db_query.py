@@ -532,16 +532,23 @@ def main():
                     else:
                         st.error('At least one of the selected columns must be numeric.')
         elif functionality == 'Find Variable Drivers':
-            st.write("Please Note that all Date/Time columns are split further into Year, Month and Day Columns")
-            target_column = st.selectbox('Select Target Column for Feature Importance', df.columns, key='target_column_select')
-            
-            if target_column and st.button('Compute Feature Importance', key='compute_feature_importance_button'):
-                # Compute feature importance
+            target_column = st.selectbox('Select Target Column', df.columns, key='target_column')
+            if st.button('Compute Feature Importances'):
                 feature_importances = compute_feature_importance(df, target_column)
                 
-                # Display feature importance
-                st.write(f"Feature importance for predicting {target_column}:")
-                st.dataframe(feature_importances)
+                # Layout to display DataFrame and plot side by side
+                col1, col2 = st.columns([3, 2])
+                
+                with col1:
+                    st.write("Feature Importances:")
+                    st.dataframe(feature_importances.style.format({'Importance': '{:.4f}'}))
+                
+                with col2:
+                    st.write("Importance Plot:")
+                    fig, ax = plt.subplots()
+                    sns.barplot(x='Importance', y='Feature', data=feature_importances, ax=ax)
+                    plt.tight_layout()
+                    st.pyplot(fig)
 
 
 if __name__ == "__main__":
