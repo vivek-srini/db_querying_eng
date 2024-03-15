@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import os
 
 openai.api_key = st.secrets['OPENAI_API_KEY']
+client = anthropic.Anthropic(
+    api_key=st.secrets['ANTHROPIC_KEY']
+)
 
 def remove_plural_suffix(text):
     # Pattern to find words ending with (s) optionally followed by an underscore and more characters
