@@ -11,6 +11,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import os
 import anthropic
+import seaborn as sns
 openai.api_key = st.secrets['OPENAI_API_KEY']
 client = anthropic.Anthropic(
     api_key=st.secrets['ANTHROPIC_KEY']
@@ -35,6 +36,38 @@ def answer_with_haiku(prompt,sonnet=False):
     ]
 )
   return message.content[0].text
+
+def analyze_relationship(df, numeric_column, categorical_column):
+    # Check if the columns exist in the DataFrame
+    if numeric_column not in df.columns or categorical_column not in df.columns:
+        print("Error: Column not found in DataFrame.")
+        return
+    
+    # Descriptive Statistics
+    print(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
+    print(df.groupby(categorical_column)[numeric_column].describe(), '\n')
+    
+    # Visualization
+    plt.figure(figsize=(16, 6))
+    
+    # Box Plot
+    plt.subplot(1, 3, 1)
+    sns.boxplot(x=categorical_column, y=numeric_column, data=df)
+    plt.title('Box Plot')
+    
+    # Bar Plot - Showing Mean Values
+    plt.subplot(1, 3, 2)
+    mean_values = df.groupby(categorical_column)[numeric_column].mean().reset_index()
+    sns.barplot(x=categorical_column, y=numeric_column, data=mean_values)
+    plt.title('Bar Plot of Mean Values')
+    
+    # Violin Plot
+    plt.subplot(1, 3, 3)
+    sns.violinplot(x=categorical_column, y=numeric_column, data=df)
+    plt.title('Violin Plot')
+    
+    plt.tight_layout()
+    plt.show()
 
 # def is_plot(result_json,question):
 #   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
@@ -336,39 +369,49 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 
 def main():
     st.title('Database Querying Thing Demo')
-    
-    # File uploader allows user to add their own CSV
-    uploaded_file = st.file_uploader("Choose a file", type=['csv'])
-    if uploaded_file is not None:
-        question = st.text_input("Enter your question:", "")
-        if question and st.button('Get Answer'):
-            # Attempt to read the CSV file with the default encoding first
+
+    # CSV Upload at the top
+    uploaded_file = st.file_uploader("Choose a file", type=['csv'], key='file_uploader')
+
+    # Placeholder for analysis options
+    analysis_options_placeholder = st.empty()
+
+    # Placeholder for displaying the answer to the question
+    answer_display_placeholder = st.empty()
+
+    # Prompt user for question at the bottom
+    question = st.text_input("Enter your question:", key="question_input")
+
+    # Button to trigger the question answering functionality
+    if question and st.button('Get Answer', key="answer_button"):
+        answer_display_placeholder.empty()  # Clear previous answers
+        if uploaded_file is not None:
             try:
                 df = pd.read_csv(uploaded_file)
             except UnicodeDecodeError:
-                # If reading with default encoding fails, try 'latin-1'
                 uploaded_file.seek(0)  # Reset the file pointer before retrying
                 df = pd.read_csv(uploaded_file, encoding='latin-1')
-                
-            # After successfully reading the file, proceed with your logic
-            # For example, temporarily save the DataFrame for processing
             temp_csv_name = "temp_uploaded_file.csv"
             df.to_csv(temp_csv_name, index=False)
+            answer, result_json = answer_question_on_csv(temp_csv_name, question)
+            answer_display_placeholder.text_area("Answer Display", value=answer, height=300, disabled=False)
             
-            # Now, you can call your function that processes the data
-            answer,result_json = answer_question_on_csv(temp_csv_name, question)
-            st.text_area("Answer Display", value=answer, height=300, disabled=False)
-            fig = ""
             if result_json:
-      
-                plot_json = is_plot(result_json,question)
-                if plot_json["is_graph"]=="yes":
-                    if plot_json["graph_type"]=="bar":
-                        fig = make_bar_plot(plot_json)
-                    elif plot_json["graph_type"]=="line":
-                        fig = make_line_plot(plot_json) 
-            if fig!="":
-                st.pyplot(fig)
+                plot_json = is_plot(result_json, question)
+                if plot_json["is_graph"] == "yes":
+                    fig = make_bar_plot(plot_json) if plot_json["graph_type"] == "bar" else make_line_plot(plot_json)
+                    st.pyplot(fig)
+
+    # Button to trigger the column selection for analysis
+    with analysis_options_placeholder:
+        if st.button('Analyze Relationship Between Columns', key="analysis_button"):
+            if uploaded_file is not None:
+                df = pd.read_csv(uploaded_file)
+                numeric_column = st.selectbox('Select Numeric Column', df.select_dtypes(include=['float64', 'int64']).columns, key='numeric_column')
+                categorical_column = st.selectbox('Select Categorical Column', df.select_dtypes(include=['object', 'category']).columns, key='categorical_column')
+                analyze_relationship(df, numeric_column, categorical_column)
+            else:
+                st.write("Please upload a CSV file first.")
           
 
 if __name__ == "__main__":
