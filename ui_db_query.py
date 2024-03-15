@@ -427,6 +427,16 @@ def main():
                 answer, result_json = answer_question_on_csv(file_path, question)  # Now passing the file path
                 st.text_area("Answer", value=answer, height=300)
                 # Additional logic to use result_json as needed
+                if result_json:
+                    plot_json = is_plot(result_json,question)
+                    if plot_json["is_graph"]=="yes":
+                        if plot_json["graph_type"]=="bar":
+                            fig = make_bar_plot(plot_json)
+                            st.pyplot(fig)
+                        elif plot_json["graph_type"]=="line":
+                            fig = make_line_plot(plot_json)
+                            st.pyplot(fig)
+                        
 
         elif functionality == 'Analyze Relationship':
             numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
