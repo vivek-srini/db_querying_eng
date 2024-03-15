@@ -532,6 +532,7 @@ def main():
                     else:
                         st.error('At least one of the selected columns must be numeric.')
         elif functionality == 'Find Variable Drivers':
+            st.write("Please Note that all Date/Time columns are split further into Year, Month and Day Columns")
             target_column = st.selectbox('Select Target Column for Feature Importance', df.columns, key='target_column_select')
             
             if target_column and st.button('Compute Feature Importance', key='compute_feature_importance_button'):
