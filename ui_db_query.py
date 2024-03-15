@@ -336,48 +336,39 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 
 def main():
     st.title('Database Querying Thing Demo')
-
-    # Create placeholders for each part of the layout
-    csv_upload_placeholder = st.empty()  # For CSV upload
-    answer_display_placeholder = st.empty()  # For displaying the answer
-    plot_display_placeholder = st.empty()  # For displaying the plot
-    # Finally, create the question input at the bottom
-    question = st.text_input("Enter your question:", key="question")
-
-    # Using the placeholder for CSV upload at the top
-    with csv_upload_placeholder:
-        col1, col2, col3 = st.columns([1,2,1])  # Creating columns for layout alignment
-        with col2:  # Middle column for the file uploader
-            uploaded_file = st.file_uploader("Choose a file", type=['csv'])
-
-    # Only proceed when a file is uploaded and a question is entered
-    if uploaded_file and question and st.button('Get Answer', key="get_answer"):
-        # Clear the placeholders to display the answer and plot
-        csv_upload_placeholder.empty()  # Optionally clear or keep the upload interface
-        answer_display_placeholder.empty()
-        plot_display_placeholder.empty()
-        
-        # Process the CSV file and question here
-        # This is where you'd call your function that processes the uploaded CSV and question
-        # For demonstration, I'll skip straight to displaying the answer and plot
-        # Assume answer and result_json are obtained from your processing function
-
-        # Example placeholders for demonstration
-        answer = "This is where the answer will be displayed."
-        result_json = True  # Assume there's data for plotting
-
-        with answer_display_placeholder.container():
+    
+    # File uploader allows user to add their own CSV
+    uploaded_file = st.file_uploader("Choose a file", type=['csv'])
+    if uploaded_file is not None:
+        question = st.text_input("Enter your question:", "")
+        if question and st.button('Get Answer'):
+            # Attempt to read the CSV file with the default encoding first
+            try:
+                df = pd.read_csv(uploaded_file)
+            except UnicodeDecodeError:
+                # If reading with default encoding fails, try 'latin-1'
+                uploaded_file.seek(0)  # Reset the file pointer before retrying
+                df = pd.read_csv(uploaded_file, encoding='latin-1')
+                
+            # After successfully reading the file, proceed with your logic
+            # For example, temporarily save the DataFrame for processing
+            temp_csv_name = "temp_uploaded_file.csv"
+            df.to_csv(temp_csv_name, index=False)
+            
+            # Now, you can call your function that processes the data
+            answer,result_json = answer_question_on_csv(temp_csv_name, question)
             st.text_area("Answer Display", value=answer, height=300, disabled=False)
-
-        if result_json:
-            plot_json = is_plot(result_json, question)  # Assuming this function returns plotting instructions
-            if plot_json["is_graph"] == "yes":
-                with plot_display_placeholder.container():
-                    if plot_json["graph_type"] == "bar":
+            fig = ""
+            if result_json:
+      
+                plot_json = is_plot(result_json,question)
+                if plot_json["is_graph"]=="yes":
+                    if plot_json["graph_type"]=="bar":
                         fig = make_bar_plot(plot_json)
-                    elif plot_json["graph_type"] == "line":
-                        fig = make_line_plot(plot_json)
-                    st.pyplot(fig)
+                    elif plot_json["graph_type"]=="line":
+                        fig = make_line_plot(plot_json) 
+            if fig!="":
+                st.pyplot(fig)
           
 
 if __name__ == "__main__":
