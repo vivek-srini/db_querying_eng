@@ -19,6 +19,56 @@ client = anthropic.Anthropic(
 )
 
 
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+import pandas as pd
+import numpy as np
+
+def preprocess_features(X):
+    """Preprocesses the DataFrame by converting categorical and date features."""
+    # Convert date columns to multiple numeric columns (year, month, day)
+    for col in X.select_dtypes(include=['datetime', 'object']):
+        if pd.to_datetime(X[col], errors='coerce').notnull().all():
+            X[col] = pd.to_datetime(X[col])
+            X[f"{col}_year"] = X[col].dt.year
+            X[f"{col}_month"] = X[col].dt.month
+            X[f"{col}_day"] = X[col].dt.day
+            X.drop(columns=[col], inplace=True)  # Drop the original date column
+    
+    # Convert categorical variables to numeric using Label Encoding for simplicity
+    # Consider One-Hot Encoding for non-ordinal categorical data
+    for col in X.select_dtypes(include=['object', 'category']).columns:
+        X[col] = LabelEncoder().fit_transform(X[col])
+    
+    return X
+
+def compute_feature_importance(df, target_column):
+    target_is_numeric = pd.api.types.is_numeric_dtype(df[target_column])
+    
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+    
+    # Preprocess the features
+    X = preprocess_features(X.copy())
+    
+    # Convert the target if it's categorical and not numeric
+    if not target_is_numeric:
+        y = LabelEncoder().fit_transform(y)
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = RandomForestRegressor(random_state=42) if target_is_numeric else RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    
+    importances = model.feature_importances_
+    feature_importances = pd.DataFrame({'Feature': X.columns, 'Importance': importances}).sort_values(by='Importance', ascending=False)
+    
+    return feature_importances
+
+
+
+
 def remove_plural_suffix(text):
     # Pattern to find words ending with (s) optionally followed by an underscore and more characters
     pattern = r'\(s\)(?=_?\w*)'
@@ -435,7 +485,7 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 def main():
     st.title('Database Querying Thing Demo')
 
-    functionality = st.radio("Choose a functionality:", ('Ask a Question', 'Analyze Relationship'))
+    functionality = st.radio("Choose a functionality:", ('Ask a Question', 'Analyze Relationship','Find Variable Drivers'))
 
     uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'])
 
@@ -481,6 +531,16 @@ def main():
                         analyze_relationship(df, column1, column2)
                     else:
                         st.error('At least one of the selected columns must be numeric.')
+        elif functionality == 'Find Variable Drivers':
+            target_column = st.selectbox('Select Target Column for Feature Importance', df.columns, key='target_column_select')
+            
+            if target_column and st.button('Compute Feature Importance', key='compute_feature_importance_button'):
+                # Compute feature importance
+                feature_importances = compute_feature_importance(df, target_column)
+                
+                # Display feature importance
+                st.write(f"Feature importance for predicting {target_column}:")
+                st.dataframe(feature_importances)
 
 
 if __name__ == "__main__":
