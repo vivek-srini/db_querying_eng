@@ -21,7 +21,7 @@ def remove_plural_suffix(text):
     pattern = r'\(s\)(?=_?\w*)'
     # Replace found patterns with nothing, effectively removing them
     result = re.sub(pattern, '', text)
-    return result
+    return result.replace("/","_")
 
 def answer_with_haiku(prompt,sonnet=False):
   model = "claude-3-haiku-20240307"
