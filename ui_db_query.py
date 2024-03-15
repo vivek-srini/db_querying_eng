@@ -536,7 +536,10 @@ def main():
             if st.button('Compute Feature Importances'):
                 feature_importances = compute_feature_importance(df, target_column)
                 
-                # Layout to display DataFrame and plot side by side
+                # Dynamically set the height based on the number of features
+                num_features = len(feature_importances)
+                plot_height = max(6, 0.3 * num_features)  # Base height + additional height per feature
+
                 col1, col2 = st.columns([3, 2])
                 
                 with col1:
@@ -545,7 +548,7 @@ def main():
                 
                 with col2:
                     st.write("Importance Plot:")
-                    fig, ax = plt.subplots()
+                    fig, ax = plt.subplots(figsize=(8, plot_height))  # Dynamic height based on number of features
                     sns.barplot(x='Importance', y='Feature', data=feature_importances, ax=ax)
                     plt.tight_layout()
                     st.pyplot(fig)
