@@ -370,42 +370,29 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 def main():
     st.title('Database Querying Thing Demo')
 
-    # Initialize session state variables for functionality selection
-    if 'functionality' not in st.session_state:
-        st.session_state['functionality'] = ''
+    functionality = st.radio("Choose a functionality:", ('Ask a Question', 'Analyze Relationship'))
 
-    # Functionality selection buttons
-    col1, col2 = st.columns(2)
-    col1.button('Ask a Question', on_click=lambda: set_functionality('ask_question'))
-    col2.button('Analyze Relationship', on_click=lambda: set_functionality('analyze_relationship'))
+    uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'])
 
-    # File upload section, shown after a functionality is selected
-    uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'], key='file_uploader') if st.session_state['functionality'] else None
-
-    if uploaded_file is not None:
+    if uploaded_file:
         df = pd.read_csv(uploaded_file)
 
-    # Handle 'Ask a Question' functionality
-    if st.session_state['functionality'] == 'ask_question' and uploaded_file is not None:
-        question = st.text_input("Enter your question:", key="question")
-        if st.button('Submit Question', key='submit_question'):
-            # Here, integrate your answer_question_on_csv functionality
-            answer, result_json = answer_question_on_csv(uploaded_file, question)  # Adapt parameters as needed
-            st.text_area("Answer", value=answer, height=100)
+        if functionality == 'Ask a Question':
+            question = st.text_input("Enter your question:")
+            if question and st.button('Submit Question'):
+                answer, result_json = answer_question_on_csv(df, question)
+                st.text_area("Answer", value=answer, height=300)
+                # Implement any additional logic needed to use result_json, e.g., for plotting
 
-    # Handle 'Analyze Relationship' functionality
-    elif st.session_state['functionality'] == 'analyze_relationship' and uploaded_file is not None:
-        # UI elements for selecting numeric and categorical columns go here
-        numeric_columns = df.select_dtypes(include=['float64', 'int64', 'bool']).columns.tolist()
-        categorical_columns = df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
-        numeric_column = st.selectbox('Select Numeric Column', numeric_columns, key='numeric_column')
-        categorical_column = st.selectbox('Select Categorical Column', categorical_columns, key='categorical_column')
-        if st.button('Analyze Columns', key='analyze_columns'):
-            # Integrate your analyze_relationship functionality
-            analyze_relationship(df, numeric_column, categorical_column)
+        elif functionality == 'Analyze Relationship':
+            numeric_columns = df.select_dtypes(include=['float64', 'int64', 'bool']).columns
+            categorical_columns = df.select_dtypes(include=['object', 'category', 'bool']).columns
 
-def set_functionality(func):
-    st.session_state['functionality'] = func
+            numeric_column = st.selectbox('Select Numeric Column', numeric_columns)
+            categorical_column = st.selectbox('Select Categorical Column', categorical_columns)
+            
+            if numeric_column and categorical_column and st.button('Analyze Columns'):
+                analyze_relationship(df, numeric_column, categorical_column)
 
 if __name__ == "__main__":
     main()
