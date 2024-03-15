@@ -43,28 +43,36 @@ def preprocess_features(X):
     
     return X
 
-def compute_feature_importance(df, target_column):
-    target_is_numeric = pd.api.types.is_numeric_dtype(df[target_column])
-    
-    X = df.drop(columns=[target_column])
+def compute_feature_importance(df, target_column, features):
+    X = df[features]
     y = df[target_column]
     
-    # Preprocess the features
-    X = preprocess_features(X.copy())
+    # Ensure preprocessing of features here if necessary
     
-    # Convert the target if it's categorical and not numeric
-    if not target_is_numeric:
-        y = LabelEncoder().fit_transform(y)
-    
+    # Split the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    model = RandomForestRegressor(random_state=42) if target_is_numeric else RandomForestClassifier(random_state=42)
+    # Choose model type based on target column's dtype
+    model = RandomForestRegressor(random_state=42) if pd.api.types.is_numeric_dtype(y) else RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
     
+    # Extract and return feature importances
     importances = model.feature_importances_
-    feature_importances = pd.DataFrame({'Feature': X.columns, 'Importance': importances}).sort_values(by='Importance', ascending=False)
-    
+    feature_importances = pd.DataFrame({'Feature': features, 'Importance': importances}).sort_values(by='Importance', ascending=False).reset_index(drop=True)
     return feature_importances
+
+def display_feature_importances(feature_importances):
+    col1, col2 = st.columns([3, 2])
+    with col1:
+        st.write("Feature Importances:")
+        st.dataframe(feature_importances.style.format({'Importance': '{:.4f}'}))
+
+    with col2:
+        st.write("Importance Plot:")
+        fig, ax = plt.subplots(figsize=(8, max(6, 0.3 * len(feature_importances))))
+        sns.barplot(x='Importance', y='Feature', data=feature_importances, ax=ax)
+        plt.tight_layout()
+        st.pyplot(fig)
 
 
 
@@ -532,26 +540,12 @@ def main():
                     else:
                         st.error('At least one of the selected columns must be numeric.')
         elif functionality == 'Find Variable Drivers':
-            target_column = st.selectbox('Select Target Column', df.columns, key='target_column')
-            if st.button('Compute Feature Importances'):
-                feature_importances = compute_feature_importance(df, target_column)
-                
-                # Dynamically set the height based on the number of features
-                num_features = len(feature_importances)
-                plot_height = max(6, 0.3 * num_features)  # Base height + additional height per feature
-
-                col1, col2 = st.columns([3, 2])
-                
-                with col1:
-                    st.write("Feature Importances:")
-                    st.dataframe(feature_importances.style.format({'Importance': '{:.4f}'}))
-                
-                with col2:
-                    st.write("Importance Plot:")
-                    fig, ax = plt.subplots(figsize=(8, plot_height))  # Dynamic height based on number of features
-                    sns.barplot(x='Importance', y='Feature', data=feature_importances, ax=ax)
-                    plt.tight_layout()
-                    st.pyplot(fig)
+            target_column = st.selectbox('Select Target Column', df.columns, index=0)
+            features = st.multiselect('Select Candidate Driver Variables', df.columns.drop(target_column), default=df.columns.drop(target_column)[:5])
+            
+            if st.button('Compute Feature Importances') and features:
+                feature_importances = compute_feature_importance(df, target_column, features)
+                display_feature_importances(feature_importances)
 
 
 if __name__ == "__main__":
