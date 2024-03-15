@@ -19,26 +19,22 @@ client = anthropic.Anthropic(
 )
 
 
-def calculate_text_area_height(answer, base_height=0, line_height=25, char_per_line=100):
+def calculate_text_area_height(answer, line_width=90, line_height=1.15):
     """
-    Calculate the height of the text area based on the answer length.
-    
-    Parameters:
-    - answer: The text of the answer.
-    - base_height: The minimum height of the text area.
-    - line_height: Estimated height per line of text.
-    - char_per_line: Estimated number of characters per line.
-    
-    Returns:
-    - An integer representing the calculated height of the text area.
+    Calculate the approximate height for the text area based on the answer length.
+
+    :param answer: The text of the answer.
+    :param line_width: Estimated average number of characters per line.
+    :param line_height: Height of each line in the text area (in em units).
+    :return: The calculated height (in em units) for the text area.
     """
-    # Calculate the number of lines based on the answer length and characters per line
-    num_lines = max(1, len(answer) // char_per_line)
-    # Adjust the number of lines based on explicit line breaks in the answer
-    num_lines += answer.count('\n')
-    # Calculate the height based on the number of lines and base height
-    height = base_height + num_lines * line_height
-    return height
+    # Calculate the number of lines the answer will occupy
+    num_lines = len(answer) / line_width
+    # Calculate the height of the text area
+    height = num_lines * line_height
+    # Ensure a minimum height to maintain usability
+    min_height = 5  # Minimum height in em units
+    return max(height, min_height)
 
 
 def remove_plural_suffix(text):
