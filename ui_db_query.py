@@ -66,6 +66,7 @@ def make_bar_plot(plot_json):
     plt.bar(x_values, y_values, color='green', width=0.4)
     plt.xlabel(plot_json["x-axis"],fontsize=20)
     plt.ylabel(plot_json["y-axis"],fontsize=20)
+    plt.tick_params(axis='both', which='major', labelsize=20) 
     return fig  # Return the figure object
 
 def make_line_plot(plot_json):
@@ -75,6 +76,7 @@ def make_line_plot(plot_json):
     plt.plot(x_values, y_values)
     plt.xlabel(plot_json["x-axis"],fontsize=20)
     plt.ylabel(plot_json["y-axis"],fontsize=20)
+    plt.tick_params(axis='both', which='major', labelsize=20) 
     return fig  # Return the figure object
 
 
