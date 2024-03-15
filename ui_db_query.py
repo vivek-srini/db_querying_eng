@@ -258,7 +258,7 @@ Please understand that you are not chatting with me. Rather, you simply have to 
 Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO YOU ARE SUPPOSED TO GIVE A VERBAL ANSWER TO THE USER AND NOT WRITE ANY CODE OR GIVE ANY OTHER INSTRUCTION. DIRECTLY ANSWER THE USER'S QUESTION"""
   stage3_response = get_chat_response_closed(stage3_prompt,"gpt-4")
   #stage3_response = answer_with_haiku(stage3_prompt)
-  total_cost = (client.count_tokens(stage2_prompt)*0.25 + client.count_tokens(stage1_prompt+stage3_prompt)*0.25+client.count_tokens(stage2_response)*1.25+client.count_tokens(sql_query+stage3_response)*1.25)/1000000
+  total_cost = (num_tokens_from_string(stage2_prompt)*0.5 + num_tokens_from_string(stage1_prompt)*0.5+num_tokens_from_string(stage2_response)*1.5+num_tokens_from_string(sql_query)*1.5+num_tokens_from_string(stage3_response)*60)/1000000
    
   st.write("Total Cost:",f"{total_cost}$")
   
