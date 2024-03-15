@@ -255,7 +255,7 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
   stage3_response = answer_with_haiku(stage3_prompt)
   total_cost = (num_tokens_from_string(stage2_prompt)*0.5 + client.count_tokens(stage1_prompt+stage3_prompt)*0.25+num_tokens_from_string(stage2_response)*1.5+client.count_tokens(sql_query+stage3_response)*1.25)/1000000
   st.write("Total Cost:",f"{total_cost}$")
-
+  st.write(stage2_response)
 
   return stage3_response
 
