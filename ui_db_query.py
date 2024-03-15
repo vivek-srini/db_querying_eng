@@ -56,7 +56,7 @@ def is_plot(result_json,question):
 
   Final for x-axis,y-axis, write descriptions of what is actually on the axis based on the question and dont copy directly from the json
   """
-  plot_response = get_chat_response_closed(plot_prompt,model="gpt-4")  
+  plot_response = get_chat_response_closed(plot_prompt,model="gpt-3.5-turbo-0125")  
   return plot_response
 
 def make_bar_plot(plot_json):
@@ -256,7 +256,7 @@ Please use the json to answer the question. Please make your answer seem like yo
 Please understand that you are not chatting with me. Rather, you simply have to answer the question:{question}
 
 Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO YOU ARE SUPPOSED TO GIVE A VERBAL ANSWER TO THE USER AND NOT WRITE ANY CODE OR GIVE ANY OTHER INSTRUCTION. DIRECTLY ANSWER THE USER'S QUESTION"""
-  stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
+  stage3_response = get_chat_response_closed(stage3_prompt,"gpt-4")
   #stage3_response = answer_with_haiku(stage3_prompt)
   total_cost = (client.count_tokens(stage2_prompt)*0.25 + client.count_tokens(stage1_prompt+stage3_prompt)*0.25+client.count_tokens(stage2_response)*1.25+client.count_tokens(sql_query+stage3_response)*1.25)/1000000
    
