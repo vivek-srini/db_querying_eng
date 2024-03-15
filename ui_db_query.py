@@ -279,7 +279,7 @@ def main():
             
             # Now, you can call your function that processes the data
             answer = answer_question_on_csv(temp_csv_name, question)
-            st.write(answer)
+            st.text(answer)
 
 if __name__ == "__main__":
     main()
