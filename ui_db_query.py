@@ -369,28 +369,36 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 
 def main():
     st.title('Database Querying Thing Demo')
-    
+
     uploaded_file = st.file_uploader("Choose a file", type=['csv'], key='file_uploader')
 
-    # Attempt to process the uploaded file ahead of user interactions
-    df = None
     if uploaded_file is not None:
+        # If a file is uploaded, read the DataFrame
         df = pd.read_csv(uploaded_file)
 
-    if df is not None:
-        # Offer column selection only if a file is successfully uploaded
-        numeric_column = st.selectbox('Select Numeric Column', df.select_dtypes(include=['float64', 'int64']).columns, key='numeric_column')
-        categorical_column = st.selectbox('Select Categorical Column', df.select_dtypes(include=['object', 'category', 'bool']).columns, key='categorical_column')
+        # Allow users to select columns for analysis
+        numeric_column = st.selectbox('Select Numeric Column', df.select_dtypes(include=['float64', 'int64', 'bool']).columns, key='numeric_column_select')
+        categorical_column = st.selectbox('Select Categorical Column', df.select_dtypes(include=['object', 'category', 'bool']).columns, key='categorical_column_select')
         
-        # Trigger the analysis right after the selections
-        if st.button('Analyze Relationship', key='analyze_button'):
+        # Button to trigger the relationship analysis
+        if st.button('Analyze Relationship', key='analyze_relationship_button'):
             analyze_relationship(df, numeric_column, categorical_column)
 
-    # Below is your existing question-answering functionality
+    # Question-answering functionality
     question = st.text_input("Enter your question:", key="question_input")
-    if question and st.button('Get Answer', key="answer_button"):
-        # Assuming the logic to handle question answering is here
-        pass
+    if question and st.button('Get Answer', key="get_answer_button"):
+        if uploaded_file is not None:
+            try:
+                # Process the uploaded CSV
+                df = pd.read_csv(uploaded_file)
+                temp_csv_name = "temp_uploaded_file.csv"
+                df.to_csv(temp_csv_name, index=False)
+                
+                # Now, call your function that processes the data based on the question
+                answer, result_json = answer_question_on_csv(temp_csv_name, question)
+                st.text_area("Answer", value=answer, height=100)
+            except Exception as e:
+                st.error(f"Error processing the question: {e}")
           
 
 if __name__ == "__main__":
