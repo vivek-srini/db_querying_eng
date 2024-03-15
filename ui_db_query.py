@@ -232,17 +232,8 @@ Please use the json to answer the question. Please make your answer seem like yo
 Please understand that you are not chatting with me. Rather, you simply have to answer the question:{question}
 
 Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO YOU ARE SUPPOSED TO GIVE A VERBAL ANSWER TO THE USER AND NOT WRITE ANY CODE OR GIVE ANY OTHER INSTRUCTION. DIRECTLY ANSWER THE USER'S QUESTION"""
-  stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
-  # if result_json:
-  #   plot_json = ast.literal_eval(is_plot(result_json, question))
-  #   if plot_json["is_graph"] == "yes":
-  #       fig = None  # Initialize the figure object
-  #       if plot_json["graph_type"] == "bar":
-  #           fig = make_bar_plot(plot_json)  # Get the figure from the plotting function
-  #       elif plot_json["graph_type"] == "line":
-  #           fig = make_line_plot(plot_json)  # Get the figure from the plotting function
-  #       if fig is not None:
-  #           st.pyplot(fig)  # Display the figure in Streamlit
+stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
+  
 
   return stage3_response
 
