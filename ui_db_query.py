@@ -296,6 +296,8 @@ def main():
                         fig = make_bar_plot(plot_json)
                     elif plot_json["graph_type"]=="line":
                         fig = make_line_plot(plot_json) 
+            if fig!="":
+                st.pyplot(fig)
           
 
 if __name__ == "__main__":
