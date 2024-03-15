@@ -231,6 +231,7 @@ NOTE: THIS IS VERY IMPORTANT: YOUR ANSWER SHOULD CONTAIN ONLY THE LIST OF TUPLES
           if pair[2].lower() in df[pair[1]][i].lower() and is_date(pair[2].lower())==False:  #no need to replace date values
             replacement_values.append(df[pair[1]][i])
             orig_values.append(pair[2])
+            break
   sql_query = sql_query.replace("\n"," ")
   for i in range(len(replacement_values)):
     sql_query = sql_query.replace(orig_values[i],replacement_values[i])
