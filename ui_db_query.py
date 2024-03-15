@@ -49,7 +49,7 @@ def analyze_relationship(df, numeric_column, categorical_column):
     st.write(df.groupby(categorical_column)[numeric_column].describe(), '\n')
     
     # Visualization setup
-    fig, axs = plt.subplots(1, 3, figsize=(16, 6))
+    fig, axs = plt.subplots(1, 3, figsize=(16, 30))
     
     # Box Plot
     sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
