@@ -375,14 +375,19 @@ def main():
     uploaded_file = st.file_uploader("Choose a file for analysis:", type=['csv'])
 
     if uploaded_file:
-        df = pd.read_csv(uploaded_file)
+        # Save the uploaded file to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            file_path = tmp_file.name
+
+        df = pd.read_csv(file_path)
 
         if functionality == 'Ask a Question':
             question = st.text_input("Enter your question:")
             if question and st.button('Submit Question'):
-                answer, result_json = answer_question_on_csv(df, question)
+                answer, result_json = answer_question_on_csv(file_path, question)  # Now passing the file path
                 st.text_area("Answer", value=answer, height=300)
-                # Implement any additional logic needed to use result_json, e.g., for plotting
+                # Additional logic to use result_json as needed
 
         elif functionality == 'Analyze Relationship':
             numeric_columns = df.select_dtypes(include=['float64', 'int64', 'bool']).columns
@@ -392,7 +397,7 @@ def main():
             categorical_column = st.selectbox('Select Categorical Column', categorical_columns)
             
             if numeric_column and categorical_column and st.button('Analyze Columns'):
-                analyze_relationship(df, numeric_column, categorical_column)
+                analyze_relationship(df, numeric_column, categorical_column)  # No change here
 
 if __name__ == "__main__":
     main()
