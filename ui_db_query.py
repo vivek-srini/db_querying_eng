@@ -239,7 +239,7 @@ NOTE: THIS IS VERY IMPORTANT: YOUR ANSWER SHOULD CONTAIN ONLY THE LIST OF TUPLES
   for pair in pairings_new:
       if not(str(df[pair[1]].dtype)[:3]=="int" or str(df[pair[1]].dtype)[:3]=="float" or str(df[pair[1]].dtype)[:4]=="bool"):
         for i in range(len(df[pair[1]])):
-          if pair[2].lower() in df[pair[1]][i].lower() and is_date(pair[2].lower())==False:  #no need to replace date values
+          if str(pair[2]).lower() in str(df[pair[1]][i]).lower() and is_date(str(pair[2]).lower())==False:  #no need to replace date values
             replacement_values.append(df[pair[1]][i])
             orig_values.append(pair[2])
             break
