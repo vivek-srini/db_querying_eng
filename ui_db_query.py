@@ -185,24 +185,38 @@ def is_plot(result_json, question):
 
 
 def make_bar_plot(plot_json):
-    fig = plt.figure(figsize=(50, 20))
+    num_categories = len(plot_json["x_axis_data"])
+    # Adjust the width dynamically based on the number of categories
+    plot_width = max(10, num_categories * 1.5)  # Base width + extra space per category
+    plot_height = 6  # Fixed height, adjust as needed
+    
+    fig = plt.figure(figsize=(plot_width, plot_height))
     x_values = plot_json["x_axis_data"]
     y_values = plot_json["y_axis_data"]
     plt.bar(x_values, y_values, color='green', width=0.4)
-    plt.xlabel(plot_json["x-axis"],fontsize=20)
-    plt.ylabel(plot_json["y-axis"],fontsize=20)
-    plt.tick_params(axis='both', which='major', labelsize=20) 
-    return fig  # Return the figure object
+    plt.xlabel(plot_json["x-axis"], fontsize=20)
+    plt.ylabel(plot_json["y-axis"], fontsize=20)
+    plt.xticks(rotation=45)  # Rotate x-axis labels if necessary
+    plt.tick_params(axis='both', which='major', labelsize=14)  # Adjust as needed
+    plt.tight_layout()
+    return fig
 
 def make_line_plot(plot_json):
-    fig = plt.figure(figsize=(50, 20))
+    num_points = len(plot_json["x_axis_data"])
+    # Dynamically adjust the width based on the number of data points
+    plot_width = max(10, num_points * 0.5)  # Base width + extra space per point
+    plot_height = 6  # Fixed height, adjust as needed
+    
+    fig = plt.figure(figsize=(plot_width, plot_height))
     x_values = plot_json["x_axis_data"]
     y_values = plot_json["y_axis_data"]
-    plt.plot(x_values, y_values)
-    plt.xlabel(plot_json["x-axis"],fontsize=20)
-    plt.ylabel(plot_json["y-axis"],fontsize=20)
-    plt.tick_params(axis='both', which='major', labelsize=20) 
-    return fig  # Return the figure object
+    plt.plot(x_values, y_values, marker='o')  # Add markers for each data point
+    plt.xlabel(plot_json["x-axis"], fontsize=20)
+    plt.ylabel(plot_json["y-axis"], fontsize=20)
+    plt.xticks(rotation=45)  # Rotate x-axis labels if there are many points
+    plt.tick_params(axis='both', which='major', labelsize=14)  # Adjust as needed
+    plt.tight_layout()
+    return fig
 
 
 def is_date(string):
