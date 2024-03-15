@@ -391,7 +391,7 @@ def main():
                 # Additional logic to use result_json as needed
 
         elif functionality == 'Analyze Relationship':
-            numeric_columns = df.select_dtypes(include=['float64', 'int64', 'bool']).columns
+            numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
             categorical_columns = df.select_dtypes(include=['object', 'category', 'bool']).columns
 
             numeric_column = st.selectbox('Select Numeric Column', numeric_columns)
