@@ -10,7 +10,7 @@ import streamlit as st
 from datetime import datetime
 import matplotlib.pyplot as plt
 import os
-
+import anthropic
 openai.api_key = st.secrets['OPENAI_API_KEY']
 client = anthropic.Anthropic(
     api_key=st.secrets['ANTHROPIC_KEY']
