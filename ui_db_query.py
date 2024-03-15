@@ -36,28 +36,82 @@ def answer_with_haiku(prompt,sonnet=False):
 )
   return message.content[0].text
 
-def is_plot(result_json,question):
-  plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
-  The question to answer based on this json is: {question}
+# def is_plot(result_json,question):
+#   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
+#   The question to answer based on this json is: {question}
   
-  Can you now suggest if it is possible to make any plot based on this json that would be useful to a user who asked that question? If no meaningful plot is possible, just say no. The graph should not be forced. Only suggest a plot if it would be helpful to the user. If there is only a single value, there is no need of a plot
-  Give the answer in the following format:
-  {{'is_graph':'yes','graph_type':'bar','x-axis':'name','y-axis':'frequency','x_axis_data':['vivek','ani','hari'],'y_axis_data':[0.2,0.3,0.4]}}
-  This final dictionary alone should be the response. Please note that there should be just a dictionary of the above format and nothing else in the response. This dictionary will be directly used for further processing
-  is_graph should be yes only if there are 2 parts in the json: one for categories and the other for numeric values.
-  For Eg: {{'Productline': {{0: 'Home and lifestyle',
-  1: 'Electronic accessories',
-  2: 'Sports and travel'}},
- 'TotalCount': {{0: 65, 1: 60, 2: 59}}}} =>is_graph:yes
+#   Can you now suggest if it is possible to make any plot based on this json that would be useful to a user who asked that question? If no meaningful plot is possible, just say no. The graph should not be forced. Only suggest a plot if it would be helpful to the user. If there is only a single value, there is no need of a plot
+#   Give the answer in the following format:
+#   {{'is_graph':'yes','graph_type':'bar','x-axis':'name','y-axis':'frequency','x_axis_data':['vivek','ani','hari'],'y_axis_data':[0.2,0.3,0.4]}}
+#   This final dictionary alone should be the response. Please note that there should be just a dictionary of the above format and nothing else in the response. This dictionary will be directly used for further processing
+#   is_graph should be yes only if there are 2 parts in the json: one for categories and the other for numeric values.
+#   For Eg: {{'Productline': {{0: 'Home and lifestyle',
+#   1: 'Electronic accessories',
+#   2: 'Sports and travel'}},
+#  'TotalCount': {{0: 65, 1: 60, 2: 59}}}} =>is_graph:yes
   
-  {{'Productline': {{0: 'Home and lifestyle'}}}} =>is_graph:no
+#   {{'Productline': {{0: 'Home and lifestyle'}}}} =>is_graph:no
 
-  Note: If the resulting json has time series, the chart type should be line chart
+#   Note: If the resulting json has time series, the chart type should be line chart
 
-  Final for x-axis,y-axis, write descriptions of what is actually on the axis based on the question and dont copy directly from the json
-  """
-  plot_response = get_chat_response_closed(plot_prompt,model="gpt-3.5-turbo-0125")  
-  return plot_response
+#   Final for x-axis,y-axis, write descriptions of what is actually on the axis based on the question and dont copy directly from the json
+#   """
+#   plot_response = get_chat_response_closed(plot_prompt,model="gpt-3.5-turbo-0125")  
+#   return plot_response
+
+def is_plot(result_json, question):
+  from dateutil.parser import parse
+
+  def is_date(string):
+    """Check if the given string is a recognizable date."""
+    try:
+      parse(string, fuzzy=False)
+      return True
+    except ValueError:
+      return False
+
+    # Ensure result_json is a dictionary
+  if isinstance(result_json, str):
+    import json
+    result_json = json.loads(result_json)
+    
+    # Early return if there's only one column or less in the JSON
+  if len(result_json.keys()) <= 1:
+    return {'is_graph': 'no'}
+  if len(result_json[list(result_json.keys())[0]])<2:
+    return {'is_graph':'no'}
+
+  category_key = None
+  numeric_key = None
+  time_series_detected = False
+
+  for key in result_json.keys():
+    first_value = next(iter(result_json[key].values()))
+    if isinstance(first_value, (int, float)):
+      numeric_key = key
+    else:
+            # Attempt to detect if the category column contains date/time values
+      if isinstance(first_value, str) and is_date(first_value):
+        time_series_detected = True
+        category_key = key
+      elif category_key is None:  # Assign the first non-numeric column as category
+        category_key = key
+
+    if category_key and numeric_key:
+      graph_type = "line" if time_series_detected else "bar"
+      x_axis_data = list(result_json[category_key].values())
+      y_axis_data = list(result_json[numeric_key].values())
+
+      return {
+            'is_graph': 'yes',
+            'graph_type': graph_type,
+            'x-axis': 'Time' if time_series_detected else category_key,
+            'y-axis': numeric_key,
+            'x_axis_data': x_axis_data,
+            'y_axis_data': y_axis_data
+        }
+    
+  return {'is_graph': 'no'}
 
 def make_bar_plot(plot_json):
     fig = plt.figure(figsize=(50, 20))
