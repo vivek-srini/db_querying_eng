@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import os
 import anthropic
 import seaborn as sns
+import tempfile
 openai.api_key = st.secrets['OPENAI_API_KEY']
 client = anthropic.Anthropic(
     api_key=st.secrets['ANTHROPIC_KEY']
