@@ -368,7 +368,7 @@ NOTE: THIS IS VERY IMPORTANT: YOUR ANSWER SHOULD CONTAIN ONLY THE LIST OF TUPLES
 
   stage2_response = get_chat_response_closed(stage2_prompt,"gpt-3.5-turbo-0125")  
   #stage2_response = answer_with_haiku(stage2_prompt)
-  st.write(stage2_response)
+  #st.write(stage2_response)
   stage2_response = stage2_response.strip()
   pairings = get_pairings(stage2_response)
   pairings_new = []
