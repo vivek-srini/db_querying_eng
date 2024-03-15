@@ -59,59 +59,69 @@ def answer_with_haiku(prompt,sonnet=False):
 #   plot_response = get_chat_response_closed(plot_prompt,model="gpt-3.5-turbo-0125")  
 #   return plot_response
 
-def is_plot(result_json, question):
-  from dateutil.parser import parse
-
-  def is_date(string):
-    """Check if the given string is a recognizable date."""
-    try:
-      parse(string, fuzzy=False)
-      return True
-    except ValueError:
-      return False
-
-    # Ensure result_json is a dictionary
-  if isinstance(result_json, str):
+def suggest_plot_type_and_data(result_json, question):
+    from dateutil.parser import parse
     import json
-    result_json = json.loads(result_json)
+
+    def is_date(string):
+        try:
+            parse(string, fuzzy=False)
+            return True
+        except ValueError:
+            return False
+
+    # Convert JSON string to Python dictionary if it's a string
+    if isinstance(result_json, str):
+        result_json = json.loads(result_json)
     
-    # Early return if there's only one column or less in the JSON
-  if len(result_json.keys()) <= 1:
-    return {'is_graph': 'no'}
-  if len(result_json[list(result_json.keys())[0]])<2:
-    return {'is_graph':'no'}
+    # If there's only one column or none, no graph can be made
+    if len(result_json.keys()) < 2:
+        return {'is_graph': 'no'}
 
-  category_key = None
-  numeric_key = None
-  time_series_detected = False
+    category_key = None
+    numeric_key = None
+    time_series_detected = False
+    sorted_data = {'x_axis_data': [], 'y_axis_data': []}
 
-  for key in result_json.keys():
-    first_value = next(iter(result_json[key].values()))
-    if isinstance(first_value, (int, float)):
-      numeric_key = key
-    else:
-            # Attempt to detect if the category column contains date/time values
-      if isinstance(first_value, str) and is_date(first_value):
-        time_series_detected = True
-        category_key = key
-      elif category_key is None:  # Assign the first non-numeric column as category
-        category_key = key
+    for key in result_json.keys():
+        first_value = next(iter(result_json[key].values()))
+        if isinstance(first_value, (int, float)):
+            numeric_key = key
+        else:
+            # Attempt to detect if the category is a date/time
+            if isinstance(first_value, str) and is_date(first_value):
+                time_series_detected = True
+                category_key = key
+            elif category_key is None:  # Fallback if no date/time detected
+                category_key = key
 
     if category_key and numeric_key:
-      graph_type = "line" if time_series_detected else "bar"
-      x_axis_data = list(result_json[category_key].values())
-      y_axis_data = list(result_json[numeric_key].values())
+        graph_type = "line" if time_series_detected else "bar"
+        
+        # Extract and potentially sort data for plotting
+        categories = result_json[category_key]
+        values = result_json[numeric_key]
+        
+        if time_series_detected:
+            # Sort by date if it's a time series
+            sorted_categories = sorted(categories.items(), key=lambda x: parse(x[1]))
+            sorted_values = {k: values[k] for k, _ in sorted_categories}
+            sorted_data['x_axis_data'] = [v for _, v in sorted_categories]
+            sorted_data['y_axis_data'] = list(sorted_values.values())
+        else:
+            sorted_data['x_axis_data'] = list(categories.values())
+            sorted_data['y_axis_data'] = list(values.values())
 
-      return {
+        return {
             'is_graph': 'yes',
             'graph_type': graph_type,
             'x-axis': 'Time' if time_series_detected else category_key,
             'y-axis': numeric_key,
-            'x_axis_data': x_axis_data,
-            'y_axis_data': y_axis_data
+            'x_axis_data': sorted_data['x_axis_data'],
+            'y_axis_data': sorted_data['y_axis_data']
         }
     
-  return {'is_graph': 'no'}
+    return {'is_graph': 'no'}
 
 def make_bar_plot(plot_json):
     fig = plt.figure(figsize=(50, 20))
