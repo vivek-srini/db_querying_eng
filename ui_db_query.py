@@ -408,7 +408,7 @@ def main():
             if uploaded_file is not None:
                 df = pd.read_csv(uploaded_file)
                 numeric_column = st.selectbox('Select Numeric Column', df.select_dtypes(include=['float64', 'int64']).columns, key='numeric_column')
-                categorical_column = st.selectbox('Select Categorical Column', df.select_dtypes(include=['object', 'category']).columns, key='categorical_column')
+                categorical_column = st.selectbox('Select Categorical Column', df.select_dtypes(include=['object', 'category','bool']).columns, key='categorical_column')
                 analyze_relationship(df, numeric_column, categorical_column)
             else:
                 st.write("Please upload a CSV file first.")
