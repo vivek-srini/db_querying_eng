@@ -56,7 +56,7 @@ def is_plot(result_json,question):
 
   Final for x-axis,y-axis, write descriptions of what is actually on the axis based on the question and dont copy directly from the json
   """
-  plot_response = answer_with_haiku(plot_prompt)  
+  plot_response = get_chat_response_closed(plot_prompt,model="gpt-4")  
   return plot_response
 
 def make_bar_plot(plot_json):
