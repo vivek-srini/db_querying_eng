@@ -43,17 +43,19 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 def analyze_relationship(df, numeric_column, categorical_column):
-    # Check if the columns exist in the DataFrame
     if numeric_column not in df.columns or categorical_column not in df.columns:
         st.error("Error: Column not found in DataFrame.")
         return
     
-    # Descriptive Statistics
-    st.write(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
-    st.write(df.groupby(categorical_column)[numeric_column].describe(), '\n')
+    # Calculate the number of unique categories
+    num_categories = len(df[categorical_column].unique())
     
-    # Visualization setup for vertical arrangement (3 rows, 1 column)
-    fig, axs = plt.subplots(3, 1, figsize=(50, 18))  # Adjust figsize as needed
+    # Dynamic width: base width + incremental width for each category
+    plot_width = max(10, num_categories * 1.5)  # Adjust 1.5 as needed for category label spacing
+    plot_height = 6  # Fixed height for each plot; adjust as needed
+    
+    # Visualization setup for vertical arrangement
+    fig, axs = plt.subplots(3, 1, figsize=(plot_width, plot_height * 3))  # 3 plots vertically
     
     # Box Plot
     sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
@@ -74,7 +76,6 @@ def analyze_relationship(df, numeric_column, categorical_column):
     axs[2].tick_params(axis='x', labelsize=14)
     axs[2].tick_params(axis='y', labelsize=14)
     
-    # Adjust layout
     plt.tight_layout()
 
     # Display the plot in Streamlit
