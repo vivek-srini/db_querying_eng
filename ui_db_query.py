@@ -403,7 +403,9 @@ def main():
         if st.button('Analyze Columns', key='analyze_columns'):
             # Integrate your analyze_relationship functionality
             analyze_relationship(df, numeric_column, categorical_column)
-          
+
+def set_functionality(func):
+    st.session_state['functionality'] = func
 
 if __name__ == "__main__":
     main()
