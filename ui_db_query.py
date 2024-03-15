@@ -60,7 +60,7 @@ def is_plot(result_json,question):
   return plot_response
 
 def make_bar_plot(plot_json):
-    fig = plt.figure(figsize=(50, 5))
+    fig = plt.figure(figsize=(50, 20))
     x_values = plot_json["x_axis_data"]
     y_values = plot_json["y_axis_data"]
     plt.bar(x_values, y_values, color='green', width=0.4)
@@ -69,7 +69,7 @@ def make_bar_plot(plot_json):
     return fig  # Return the figure object
 
 def make_line_plot(plot_json):
-    fig = plt.figure(figsize=(50, 5))
+    fig = plt.figure(figsize=(50, 20))
     x_values = plot_json["x_axis_data"]
     y_values = plot_json["y_axis_data"]
     plt.plot(x_values, y_values)
