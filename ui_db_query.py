@@ -20,6 +20,16 @@ def remove_plural_suffix(text):
     result = re.sub(pattern, '', text)
     return result
 
+def answer_with_haiku(prompt):
+  message = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": prompt}
+    ]
+)
+  return message.content[0].text
+
 def is_plot(result_json,question):
   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
   The question to answer based on this json is: {question}
@@ -187,7 +197,8 @@ Data type for each column:"""
   stage1_prompt+=f"""\nBased on this information, please write sqlite queries for the following question:{question}
 Note: THIS IS VERY IMPORTANT. ONLY GIVE A SINGLE SQL QUERY AND NO OTHER INFORMATION IN YOUR ANSWER. THERE SHOULD NOT BE ANYTHING EXCEPT THE QUERY ITSELF.DONT EVEN MENTION THAT IT IS A SQL QUERY, JUST GIVE A SINGLE QUERY. THE OUTPUT WILL BE DIRECTLY EXECUTED ON A SQL SERVER"""
 
-  sql_query = get_chat_response_closed(stage1_prompt,"gpt-3.5-turbo-0125")
+  #sql_query = get_chat_response_closed(stage1_prompt,"gpt-3.5-turbo-0125")
+  sql_query = answer_with_haiku(stage1_prompt)
   sql_query = sql_query.strip("`")
   sql_query = sql_query.strip()
   sql_query = sql_query.replace("\n"," ")
