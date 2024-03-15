@@ -351,7 +351,7 @@ def main():
             fig = ""
             if result_json:
       
-                plot_json = ast.literal_eval(is_plot(result_json,question))
+                plot_json = is_plot(result_json,question)
                 if plot_json["is_graph"]=="yes":
                     if plot_json["graph_type"]=="bar":
                         fig = make_bar_plot(plot_json)
