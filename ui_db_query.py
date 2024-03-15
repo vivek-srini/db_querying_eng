@@ -337,38 +337,40 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 def main():
     st.title('Database Querying Thing Demo')
     
-    # File uploader allows user to add their own CSV
-    uploaded_file = st.file_uploader("Choose a file", type=['csv'])
-    if uploaded_file is not None:
-        question = st.text_input("Enter your question:", "")
-        if question and st.button('Get Answer'):
-            # Attempt to read the CSV file with the default encoding first
-            try:
-                df = pd.read_csv(uploaded_file)
-            except UnicodeDecodeError:
-                # If reading with default encoding fails, try 'latin-1'
-                uploaded_file.seek(0)  # Reset the file pointer before retrying
-                df = pd.read_csv(uploaded_file, encoding='latin-1')
-                
-            # After successfully reading the file, proceed with your logic
-            # For example, temporarily save the DataFrame for processing
-            temp_csv_name = "temp_uploaded_file.csv"
-            df.to_csv(temp_csv_name, index=False)
-            
-            # Now, you can call your function that processes the data
-            answer,result_json = answer_question_on_csv(temp_csv_name, question)
+    # CSV Upload at the top
+    col1, col2, col3 = st.columns([1,2,1])  # Create three columns, with the middle one being twice as wide
+    with col2:  # Place the uploader in the middle column
+        uploaded_file = st.file_uploader("Choose a file", type=['csv'])
+    
+    # Space for answer and plot display (Placeholder to dynamically add content later)
+    answer_display_container = st.container()
+    plot_display_container = st.container()
+    
+    # Question input at the bottom
+    question = st.text_input("Enter your question:", "")
+    
+    # When the question is submitted
+    if question and uploaded_file and st.button('Get Answer', key="get_answer"):
+        # Process the CSV file and question
+        temp_csv_name = "temp_uploaded_file.csv"
+        df = pd.read_csv(uploaded_file)
+        df.to_csv(temp_csv_name, index=False)
+        answer, result_json = answer_question_on_csv(temp_csv_name, question)
+        
+        # Display the answer and plot in the designated placeholders
+        with answer_display_container:
             st.text_area("Answer Display", value=answer, height=300, disabled=False)
-            fig = ""
-            if result_json:
-      
-                plot_json = is_plot(result_json,question)
-                if plot_json["is_graph"]=="yes":
-                    if plot_json["graph_type"]=="bar":
+        
+        if result_json:
+            plot_json = is_plot(result_json, question)
+            if plot_json["is_graph"] == "yes":
+                with plot_display_container:
+                    if plot_json["graph_type"] == "bar":
                         fig = make_bar_plot(plot_json)
-                    elif plot_json["graph_type"]=="line":
-                        fig = make_line_plot(plot_json) 
-            if fig!="":
-                st.pyplot(fig)
+                        st.pyplot(fig)
+                    elif plot_json["graph_type"] == "line":
+                        fig = make_line_plot(plot_json)
+                        st.pyplot(fig)
           
 
 if __name__ == "__main__":
