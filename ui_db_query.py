@@ -233,7 +233,7 @@ Please understand that you are not chatting with me. Rather, you simply have to 
 
 Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO YOU ARE SUPPOSED TO GIVE A VERBAL ANSWER TO THE USER AND NOT WRITE ANY CODE OR GIVE ANY OTHER INSTRUCTION. DIRECTLY ANSWER THE USER'S QUESTION"""
   stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
-  st.write("Total Cost:",num_tokens_from_string(stage3_prompt+stage1_prompt+stage2_prompt)*0.5 + num_tokens_from_string(stage1_response+stage2_response+stage3_response)*1.5)
+  st.write("Total Cost:",num_tokens_from_string(stage3_prompt+stage1_prompt+stage2_prompt)*0.5 + num_tokens_from_string(sql_query+stage2_response+stage3_response)*1.5)
 
 
   return stage3_response
