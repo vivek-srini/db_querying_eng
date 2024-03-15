@@ -38,6 +38,10 @@ def answer_with_haiku(prompt,sonnet=False):
 )
   return message.content[0].text
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+import streamlit as st
+
 def analyze_relationship(df, numeric_column, categorical_column):
     # Check if the columns exist in the DataFrame
     if numeric_column not in df.columns or categorical_column not in df.columns:
@@ -48,33 +52,34 @@ def analyze_relationship(df, numeric_column, categorical_column):
     st.write(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
     st.write(df.groupby(categorical_column)[numeric_column].describe(), '\n')
     
-    # Visualization setup
-    fig, axs = plt.subplots(1, 3, figsize=(50, 6))
+    # Visualization setup for vertical arrangement (3 rows, 1 column)
+    fig, axs = plt.subplots(3, 1, figsize=(10, 18))  # Adjust figsize as needed
     
     # Box Plot
     sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
-    axs[0].set_title('Box Plot', fontsize=20)  # Set title font size
-    axs[0].tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
-    axs[0].tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
+    axs[0].set_title('Box Plot', fontsize=20)
+    axs[0].tick_params(axis='x', labelsize=14)
+    axs[0].tick_params(axis='y', labelsize=14)
     
     # Bar Plot - Showing Mean Values
     mean_values = df.groupby(categorical_column)[numeric_column].mean().reset_index()
     sns.barplot(x=categorical_column, y=numeric_column, data=mean_values, ax=axs[1])
-    axs[1].set_title('Bar Plot of Mean Values', fontsize=20)  # Set title font size
-    axs[1].tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
-    axs[1].tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
+    axs[1].set_title('Bar Plot of Mean Values', fontsize=20)
+    axs[1].tick_params(axis='x', labelsize=14)
+    axs[1].tick_params(axis='y', labelsize=14)
     
     # Violin Plot
     sns.violinplot(x=categorical_column, y=numeric_column, data=df, ax=axs[2])
-    axs[2].set_title('Violin Plot', fontsize=20)  # Set title font size
-    axs[2].tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
-    axs[2].tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
+    axs[2].set_title('Violin Plot', fontsize=20)
+    axs[2].tick_params(axis='x', labelsize=14)
+    axs[2].tick_params(axis='y', labelsize=14)
     
     # Adjust layout
     plt.tight_layout()
 
     # Display the plot in Streamlit
     st.pyplot(fig)
+
 
 # def is_plot(result_json,question):
 #   plot_prompt = f"""You have this resulting json which is a result of querying a sqlite database:{result_json}
