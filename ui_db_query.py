@@ -287,7 +287,14 @@ def main():
             # Now, you can call your function that processes the data
             answer = answer_question_on_csv(temp_csv_name, question)
             st.text_area("Answer Display", value=answer, height=300, disabled=False)
-
+            if result_json:
+              plot_json = ast.literal_eval(is_plot(result_json,question))
+              if plot_json["is_graph"]=="yes":
+                if plot_json["graph_type"]=="bar":
+                  fig = make_bar_plot(plot_json)
+                elif plot_json["graph_type"]=="line":
+                  fig = make_line_plot(plot_json)
+            st.pyplot(fig)
           
 
 if __name__ == "__main__":
