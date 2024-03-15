@@ -19,7 +19,7 @@ client = anthropic.Anthropic(
 )
 
 
-def calculate_text_area_height(answer, base_height=100, line_height=25, char_per_line=100):
+def calculate_text_area_height(answer, base_height=0, line_height=25, char_per_line=100):
     """
     Calculate the height of the text area based on the answer length.
     
