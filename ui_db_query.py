@@ -448,7 +448,7 @@ def main():
             if question and st.button('Submit Question'):
                 answer, result_json = answer_question_on_csv(file_path, question)  # Now passing the file path
                 #text_area_height = calculate_text_area_height(answer)
-                st.markdown(answer)
+                st.write(answer.replace("$","\$")
                 # Additional logic to use result_json as needed
                 if result_json:
                     plot_json = is_plot(result_json,question)
