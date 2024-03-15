@@ -192,15 +192,16 @@ def answer_question_on_csv(csv_file_name,question):
   table_name = "my_table"
   # question = """which is the most common mode of payment?"""
   stage1_prompt = f"""I am currently working with a single table in a sqlite database. The information about this table are as follows:
-Table name: {table_name}
-Column Names: {list(df.columns)}
-Data type for each column:"""
+Table name: {table_name}\n"""
+
+  stage1_prompt+=f"""Here is information about the columns. I provide the column name, data type of the column and the first 5 entries in each column for you to get an idea of the type of information in the column:"""
+
   for col in list(df.columns):
-    stage1_prompt+=f"""\n{col} : {type(df[col][0])}"""
+      stage1_prompt+=f"""\nColumn Name: {col}\nData type for this column: {df[col].dtype}\nFirst 5 entries in this column:\n {df[col].iloc[:5]}\n\n"""
+
   stage1_prompt+=f"""\nBased on this information, please write sqlite queries for the following question:{question}
 Note: THIS IS VERY IMPORTANT. ONLY GIVE A SINGLE SQL QUERY AND NO OTHER INFORMATION IN YOUR ANSWER. THERE SHOULD NOT BE ANYTHING EXCEPT THE QUERY ITSELF.DONT EVEN MENTION THAT IT IS A SQL QUERY, JUST GIVE A SINGLE QUERY. THE OUTPUT WILL BE DIRECTLY EXECUTED ON A SQL SERVER"""
-
-  #sql_query = get_chat_response_closed(stage1_prompt,"gpt-3.5-turbo-0125")
+print(stage1_prompt)
   sql_query = answer_with_haiku(stage1_prompt)
   sql_query = sql_query.strip("`")
   sql_query = sql_query.strip()
