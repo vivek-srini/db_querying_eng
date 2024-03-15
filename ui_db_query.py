@@ -258,10 +258,17 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
   #stage3_response = get_chat_response_closed(stage3_prompt,"gpt-3.5-turbo-0125")
   stage3_response = answer_with_haiku(stage3_prompt)
   total_cost = (client.count_tokens(stage2_prompt)*0.25 + client.count_tokens(stage1_prompt+stage3_prompt)*0.25+client.count_tokens(stage2_response)*1.25+client.count_tokens(sql_query+stage3_response)*1.25)/1000000
+  if result_json:
+      plot_json = ast.literal_eval(is_plot(result_json,question))
+          if plot_json["is_graph"]=="yes":
+              if plot_json["graph_type"]=="bar":
+                  fig = make_bar_plot(plot_json)
+              elif plot_json["graph_type"]=="line":
+                  fig = make_line_plot(plot_json)  
   st.write("Total Cost:",f"{total_cost}$")
   
 
-  return stage3_response
+  return stage3_response,fig
 
 def main():
     st.title('Database Querying Thing Demo')
@@ -285,15 +292,9 @@ def main():
             df.to_csv(temp_csv_name, index=False)
             
             # Now, you can call your function that processes the data
-            answer = answer_question_on_csv(temp_csv_name, question)
+            answer,fig = answer_question_on_csv(temp_csv_name, question)
             st.text_area("Answer Display", value=answer, height=300, disabled=False)
-            if result_json:
-              plot_json = ast.literal_eval(is_plot(result_json,question))
-              if plot_json["is_graph"]=="yes":
-                if plot_json["graph_type"]=="bar":
-                  fig = make_bar_plot(plot_json)
-                elif plot_json["graph_type"]=="line":
-                  fig = make_line_plot(plot_json)
+            
             st.pyplot(fig)
           
 
