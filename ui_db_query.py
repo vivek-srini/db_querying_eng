@@ -59,7 +59,7 @@ def answer_with_haiku(prompt,sonnet=False):
 #   plot_response = get_chat_response_closed(plot_prompt,model="gpt-3.5-turbo-0125")  
 #   return plot_response
 
-def is_plot(result_json, question):
+def suggest_plot_type_and_data(result_json, question):
     from dateutil.parser import parse
     import json
 
@@ -122,6 +122,9 @@ def is_plot(result_json, question):
         }
     
     return {'is_graph': 'no'}
+
+
+
 
 def make_bar_plot(plot_json):
     fig = plt.figure(figsize=(50, 20))
