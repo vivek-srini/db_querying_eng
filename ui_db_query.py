@@ -215,10 +215,11 @@ NOTE: THIS IS VERY IMPORTANT: YOUR ANSWER SHOULD CONTAIN ONLY THE LIST OF TUPLES
   orig_values = []
 
   for pair in pairings_new:
-    for i in range(len(df[pair[1]])):
-      if pair[2].lower() in df[pair[1]][i].lower() and is_date(pair[2].lower())==False:  #no need to replace date values
-        replacement_values.append(df[pair[1]][i])
-        orig_values.append(pair[2])
+    if not(str(df[pair[1]].dtype)[:3]=="int" or str(df[pair[1]].dtype)[:3]=="float"):
+        for i in range(len(df[pair[1]])):
+          if pair[2].lower() in df[pair[1]][i].lower() and is_date(pair[2].lower())==False:  #no need to replace date values
+            replacement_values.append(df[pair[1]][i])
+            orig_values.append(pair[2])
   sql_query = sql_query.replace("\n"," ")
   for i in range(len(replacement_values)):
     sql_query = sql_query.replace(orig_values[i],replacement_values[i])
