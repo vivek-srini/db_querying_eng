@@ -259,6 +259,7 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
   stage3_response = answer_with_haiku(stage3_prompt)
   total_cost = (client.count_tokens(stage2_prompt)*0.25 + client.count_tokens(stage1_prompt+stage3_prompt)*0.25+client.count_tokens(stage2_response)*1.25+client.count_tokens(sql_query+stage3_response)*1.25)/1000000
   if result_json:
+      fig = ""
       plot_json = ast.literal_eval(is_plot(result_json,question))
       if plot_json["is_graph"]=="yes":
           if plot_json["graph_type"]=="bar":
@@ -294,8 +295,8 @@ def main():
             # Now, you can call your function that processes the data
             answer,fig = answer_question_on_csv(temp_csv_name, question)
             st.text_area("Answer Display", value=answer, height=300, disabled=False)
-            
-            st.pyplot(fig)
+            if fig!="":
+                st.pyplot(fig)
           
 
 if __name__ == "__main__":
