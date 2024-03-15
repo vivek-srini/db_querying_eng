@@ -19,24 +19,6 @@ client = anthropic.Anthropic(
 )
 
 
-def calculate_text_area_height(answer, line_width=90, line_height=1.15):
-    """
-    Calculate the approximate height for the text area based on the answer length.
-
-    :param answer: The text of the answer.
-    :param line_width: Estimated average number of characters per line.
-    :param line_height: Height of each line in the text area (in em units).
-    :return: The calculated height (in em units) for the text area.
-    """
-    # Calculate the number of lines the answer will occupy
-    num_lines = len(answer) / line_width
-    # Calculate the height of the text area
-    height = num_lines * line_height
-    # Ensure a minimum height to maintain usability
-    min_height = 5  # Minimum height in em units
-    return max(height, min_height)
-
-
 def remove_plural_suffix(text):
     # Pattern to find words ending with (s) optionally followed by an underscore and more characters
     pattern = r'\(s\)(?=_?\w*)'
@@ -65,51 +47,73 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
 
-def analyze_relationship(df, numeric_column, categorical_column):
-    if numeric_column not in df.columns or categorical_column not in df.columns:
+def is_categorical(series):
+    # Treat a column as categorical if it's a boolean, object, or categorical type
+    return series.dtype == bool or pd.api.types.is_categorical_dtype(series) or pd.api.types.is_object_dtype(series)
+
+def analyze_relationship(df, column1, column2):
+    if column1 not in df.columns or column2 not in df.columns:
         st.error("Error: Column not found in DataFrame.")
         return
-    
-    # Descriptive Statistics display
-    st.write(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
-    descriptive_stats = df.groupby(categorical_column)[numeric_column].describe()
-    st.dataframe(descriptive_stats)  # Use st.dataframe to display the stats nicely
 
-    # Calculate the number of unique categories for dynamic sizing
-    num_categories = len(df[categorical_column].unique())
+    # Check if each column is categorical according to the defined logic
+    col1_is_categorical = is_categorical(df[column1])
+    col2_is_categorical = is_categorical(df[column2])
     
-    # Dynamic width based on number of categories
-    plot_width = max(10, num_categories * 1.5)  # Adjust multiplier as needed
-    # Dynamic height based on number of plots (considering 3 plots here)
-    plot_height_per_plot = 4  # Adjust base height per plot as needed
-    total_plot_height = plot_height_per_plot * 3 + (2 * num_categories)  # Adding extra space based on categories
+    # Scenario 1: One categorical and one numeric column
+    if col1_is_categorical != col2_is_categorical:
+        numeric_column, categorical_column = (column1, column2) if not col1_is_categorical else (column2, column1)
+        
+        # Descriptive Statistics display
+        st.write(f"Descriptive Statistics of '{numeric_column}' within each '{categorical_column}':")
+        descriptive_stats = df.groupby(categorical_column)[numeric_column].describe()
+        st.dataframe(descriptive_stats)
 
-    # Visualization setup for vertical arrangement
-    fig, axs = plt.subplots(3, 1, figsize=(plot_width, total_plot_height))
-    
-    # Box Plot
-    sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
-    axs[0].set_title('Box Plot', fontsize=20)
-    axs[0].tick_params(axis='x', labelsize=14)
-    axs[0].tick_params(axis='y', labelsize=14)
-    
-    # Bar Plot - Showing Mean Values
-    mean_values = df.groupby(categorical_column)[numeric_column].mean().reset_index()
-    sns.barplot(x=categorical_column, y=numeric_column, data=mean_values, ax=axs[1])
-    axs[1].set_title('Bar Plot of Mean Values', fontsize=20)
-    axs[1].tick_params(axis='x', labelsize=14)
-    axs[1].tick_params(axis='y', labelsize=14)
-    
-    # Violin Plot
-    sns.violinplot(x=categorical_column, y=numeric_column, data=df, ax=axs[2])
-    axs[2].set_title('Violin Plot', fontsize=20)
-    axs[2].tick_params(axis='x', labelsize=14)
-    axs[2].tick_params(axis='y', labelsize=14)
-    
-    plt.tight_layout()
+        # Visualization setup for dynamic sizing based on the number of categories
+        num_categories = len(df[categorical_column].unique())
+        plot_width = max(10, num_categories * 1.5)
+        plot_height_per_plot = 4
+        total_plot_height = plot_height_per_plot * 3 + (2 * num_categories)
+        
+        fig, axs = plt.subplots(3, 1, figsize=(plot_width, total_plot_height))
+        
+        # Box Plot
+        sns.boxplot(x=categorical_column, y=numeric_column, data=df, ax=axs[0])
+        axs[0].set_title('Box Plot', fontsize=20)
+        axs[0].tick_params(axis='x', labelsize=14)
+        axs[0].tick_params(axis='y', labelsize=14)
+        
+        # Bar Plot - Showing Mean Values
+        mean_values = df.groupby(categorical_column)[numeric_column].mean().reset_index()
+        sns.barplot(x=categorical_column, y=numeric_column, data=mean_values, ax=axs[1])
+        axs[1].set_title('Bar Plot of Mean Values', fontsize=20)
+        axs[1].tick_params(axis='x', labelsize=14)
+        axs[1].tick_params(axis='y', labelsize=14)
+        
+        # Violin Plot
+        sns.violinplot(x=categorical_column, y=numeric_column, data=df, ax=axs[2])
+        axs[2].set_title('Violin Plot', fontsize=20)
+        axs[2].tick_params(axis='x', labelsize=14)
+        axs[2].tick_params(axis='y', labelsize=14)
+        
+        plt.tight_layout()
+        st.pyplot(fig)
 
-    # Display the plot in Streamlit
-    st.pyplot(fig)
+    # Scenario 2: Both columns are numeric
+    elif not col1_is_categorical and not col2_is_categorical:
+        correlation = df[[column1, column2]].corr().iloc[0, 1]
+        st.write(f"Correlation coefficient between {column1} and {column2}: {correlation:.2f}")
+        
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.scatterplot(x=column1, y=column2, data=df, ax=ax)
+        ax.set_title('Scatter Plot', fontsize=20)
+        ax.set_xlabel(column1, fontsize=14)
+        ax.set_ylabel(column2, fontsize=14)
+        plt.tight_layout()
+        st.pyplot(fig)
+
+    else:
+        st.error("Unsupported combination of column types for analysis.")
 
 
 
