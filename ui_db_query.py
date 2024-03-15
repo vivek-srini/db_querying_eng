@@ -370,35 +370,40 @@ Note: IT IS OF UTMOST IMPORTANCE THAT YOU DO NOT MENTION THE JSON AT ALL. ALSO Y
 def main():
     st.title('Database Querying Thing Demo')
 
-    uploaded_file = st.file_uploader("Choose a file", type=['csv'], key='file_uploader')
-
+    # File uploader allows user to add their own CSV
+    uploaded_file = st.file_uploader("Choose a file", type=['csv'])
+    df = None
     if uploaded_file is not None:
-        # If a file is uploaded, read the DataFrame
-        df = pd.read_csv(uploaded_file)
+        # Load and cache the uploaded file
+        @st.cache(allow_output_mutation=True)
+        def load_csv():
+            return pd.read_csv(uploaded_file)
+        df = load_csv()
 
-        # Allow users to select columns for analysis
-        numeric_column = st.selectbox('Select Numeric Column', df.select_dtypes(include=['float64', 'int64', 'bool']).columns, key='numeric_column_select')
-        categorical_column = st.selectbox('Select Categorical Column', df.select_dtypes(include=['object', 'category', 'bool']).columns, key='categorical_column_select')
-        
-        # Button to trigger the relationship analysis
-        if st.button('Analyze Relationship', key='analyze_relationship_button'):
+    # Relationship analysis section
+    if df is not None and not df.empty:
+        st.write("Analyze Relationship Between Columns")
+        numeric_columns = df.select_dtypes(include=['float64', 'int64', 'bool']).columns.tolist()
+        categorical_columns = df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
+        numeric_column = st.selectbox('Select Numeric Column', numeric_columns, key='numeric_select')
+        categorical_column = st.selectbox('Select Categorical Column', categorical_columns, key='categorical_select')
+        if st.button('Analyze', key='analyze'):
             analyze_relationship(df, numeric_column, categorical_column)
 
-    # Question-answering functionality
-    question = st.text_input("Enter your question:", key="question_input")
-    if question and st.button('Get Answer', key="get_answer_button"):
-        if uploaded_file is not None:
-            try:
-                # Process the uploaded CSV
-                df = pd.read_csv(uploaded_file)
+    # Question and answer section
+    question = st.text_input("Enter your question:", "")
+    if question:
+        if st.button('Get Answer', key='get_answer'):
+            if df is not None:
                 temp_csv_name = "temp_uploaded_file.csv"
                 df.to_csv(temp_csv_name, index=False)
-                
-                # Now, call your function that processes the data based on the question
                 answer, result_json = answer_question_on_csv(temp_csv_name, question)
-                st.text_area("Answer", value=answer, height=100)
-            except Exception as e:
-                st.error(f"Error processing the question: {e}")
+                st.text_area("Answer Display", value=answer, height=300)
+                if result_json:
+                    plot_json = is_plot(result_json, question)
+                    if plot_json["is_graph"] == "yes":
+                        fig = make_bar_plot(plot_json) if plot_json["graph_type"] == "bar" else make_line_plot(plot_json)
+                        st.pyplot(fig)
           
 
 if __name__ == "__main__":
