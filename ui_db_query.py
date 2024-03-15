@@ -200,7 +200,7 @@ Table name: {table_name}\n"""
       stage1_prompt+=f"""\nColumn Name: {col}\nData type for this column: {df[col].dtype}\nFirst 5 entries in this column:\n {df[col].iloc[:5]}\n\n"""
 
   stage1_prompt+=f"""\nBased on this information, please write sqlite queries for the following question:{question}
-Note: THIS IS VERY IMPORTANT. ONLY GIVE A SINGLE SQL QUERY AND NO OTHER INFORMATION IN YOUR ANSWER. THERE SHOULD NOT BE ANYTHING EXCEPT THE QUERY ITSELF.DONT EVEN MENTION THAT IT IS A SQL QUERY, JUST GIVE A SINGLE QUERY. THE OUTPUT WILL BE DIRECTLY EXECUTED ON A SQL SERVER"""
+Note: THIS IS VERY IMPORTANT. ONLY GIVE A SINGLE SQL QUERY AND NO OTHER INFORMATION IN YOUR ANSWER. THERE SHOULD NOT BE ANYTHING EXCEPT THE QUERY ITSELF.DONT EVEN MENTION THAT IT IS A SQL QUERY, JUST GIVE A SINGLE QUERY. THE OUTPUT WILL BE DIRECTLY EXECUTED ON A SQL SERVER. ALSO, YOU HAVE TO GIVE EXACTLY 1 SQL QUERY"""
   print(stage1_prompt)
   sql_query = answer_with_haiku(stage1_prompt)
   sql_query = sql_query.strip("`")
